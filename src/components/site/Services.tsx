@@ -4,32 +4,32 @@ import { CheckCircle2, Film, Megaphone, Palette, Sparkles } from "lucide-react";
 
 const services = [
   {
-    title: "Identity",
-    tag: "MARK",
-    icon: Palette,
-    text: "One system for the name, the type, and the color, so the next post does not invent a new voice.",
-    deliverables: ["Logo lockup", "Type and color", "Social templates", "Usage notes"],
-  },
-  {
-    title: "Campaign",
-    tag: "SEASON",
-    icon: Megaphone,
-    text: "A set of frames for the season, the booth, and the feed. Each piece works alone and in the set.",
-    deliverables: ["Key visual", "Post set", "Booth frames", "Headline"],
-  },
-  {
-    title: "Social",
+    title: "Digital Marketing",
     tag: "FEED",
-    icon: Film,
-    text: "A run of posts that keep the mark readable from a phone, ready on the morning they are needed.",
-    deliverables: ["Feed set", "Story frames", "Caption direction", "Export files"],
+    icon: Megaphone,
+    text: "Offers, seasonal posts, and the supermarket set. The price and the brand stay in the same frame.",
+    deliverables: ["Offer posts", "Seasonal set", "Caption direction", "Feed export"],
   },
   {
-    title: "Full brand",
-    tag: "SYSTEM",
+    title: "Media Production",
+    tag: "FRAME",
+    icon: Film,
+    text: "Clinic campaigns, logo films, and the frames that carry a name from the booth to the phone.",
+    deliverables: ["Key visual", "Clinic set", "Logo lockup", "Booth frames"],
+  },
+  {
+    title: "Software Solutions",
+    tag: "PRODUCT",
+    icon: Palette,
+    text: "Product screens for the field and the clinic. Sanvix tracks visits. The Gobran clinic books the next slot.",
+    deliverables: ["Sanvix field app", "Clinic booking", "Admin and rep views", "Handover screens"],
+  },
+  {
+    title: "AI Solutions",
+    tag: "ASSIST",
     icon: Sparkles,
-    text: "Identity, campaign, and the social set as one job, for a launch that has to hold together.",
-    deliverables: ["Identity system", "Launch campaign", "Social set", "Handover"],
+    text: "An assistant inside the product. The clinic screen takes the symptoms and offers a next step.",
+    deliverables: ["Clinic assistant", "Symptom prompt", "Next-step screen", "In-product placement"],
   },
 ];
 
@@ -46,7 +46,7 @@ export function Services() {
           </h2>
         </div>
         <p className="max-w-md text-sm text-zinc-400 md:text-base">
-          Identities, seasonal campaigns, and social for companies in automotive, education, real estate, and the occasions of the year.
+          Digital marketing, media production, software, and AI product screens. The studio is in Zagazig, Sharqia.
         </p>
       </div>
       <div className="grid gap-6 md:grid-cols-2">

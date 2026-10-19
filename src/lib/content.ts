@@ -2,11 +2,81 @@ export const agency = {
   name: "B2B.",
   legal: "B2B.",
   former: "2 Agency",
-  email: "hello@b2b.agency",
-  location: "Campaigns and identities for companies",
+  email: "bbagency@gmail.com",
+  phone: "01020738348",
+  phoneHref: "tel:+201020738348",
+  location: "Zagazig, Sharqia, Egypt",
   description:
-    "B2B. designs identities, seasonal campaigns, and social for companies. The archive is shipped work: automotive, schools, real estate, and the occasions of 2026.",
+    "B2B. is the studio in Zagazig for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social.",
+  vision:
+    "To be among the leading marketing and advertising companies in the Middle East, through creative work that uses innovation and current technology, and to be the first partner in a client's success.",
+  mission:
+    "Professional marketing and advertising that raise awareness of the brand and support growth, and that build a strong link between a company and its customers.",
 };
+
+export const whyUs = [
+  "A specialized team",
+  "Creative ideas",
+  "High quality in the files",
+  "Deadlines that hold",
+  "Integrated solutions",
+  "Follow-up that continues",
+  "Performance reports on a cycle",
+  "Competitive ranges",
+] as const;
+
+export const logoClients = [
+  "Sweet Home",
+  "Chatilli Ghura",
+  "Allen X",
+  "Zain Store",
+  "Balasa Luxury Home Interiors",
+  "Tohom",
+  "Vitch Chocolate",
+  "Sanvix",
+  "Blue Outlet",
+  "The Invest Real Estate",
+  "Metro Mens Wear",
+  "Dr. Mahmoud Gobran Dental Clinic",
+] as const;
+
+export const marks = [
+  { src: "/work/marks/a-01.png", name: "Sweet Home" },
+  { src: "/work/marks/a-02.png", name: "Chatilli Ghura" },
+  { src: "/work/marks/a-03.png", name: "Allen X" },
+  { src: "/work/marks/a-04.png", name: "Zain Store" },
+  { src: "/work/marks/a-05.png", name: "Balasa" },
+  { src: "/work/marks/a-06.png", name: "Tohom" },
+  { src: "/work/marks/b-01.png", name: "Vitch Chocolate" },
+  { src: "/work/marks/b-02.png", name: "Sanvix" },
+  { src: "/work/marks/b-03.png", name: "Blue Outlet" },
+  { src: "/work/marks/b-04.png", name: "The Invest" },
+  { src: "/work/marks/b-05.png", name: "Metro" },
+  { src: "/work/marks/b-06.png", name: "Dr. Mahmoud Gobran" },
+] as const;
+
+export const studioFrames = [
+  { src: "/work/posters/market-01.png", title: "Supermarket", line: "Offers on the phone" },
+  { src: "/work/posters/market-02.png", title: "Supermarket", line: "The receipt in the aisle" },
+  { src: "/work/posters/market-03.png", title: "Supermarket", line: "Eid box for the week" },
+  { src: "/work/posters/market-04.png", title: "Supermarket", line: "The aisle, marked off" },
+  { src: "/work/posters/clinic-01.png", title: "Clinic", line: "The pose, with the price" },
+  { src: "/work/posters/clinic-02.png", title: "Clinic", line: "Full body, seated" },
+  { src: "/work/posters/clinic-03.png", title: "Clinic", line: "The face, close" },
+  { src: "/work/posters/clinic-04.png", title: "Clinic", line: "The offer beside the portrait" },
+] as const;
+
+export const mediaFilms = [
+  { src: "/work/media/film-01.mp4", title: "On the road", line: "A presenter with the car in frame" },
+  { src: "/work/media/film-02.mp4", title: "Majestic Home", line: "Samples on the table, spoken to camera" },
+  { src: "/work/media/film-03.mp4", title: "Majestic Furniture", line: "The bridal set, seated in the showroom" },
+  { src: "/work/media/film-04.mp4", title: "At the table", line: "A phone, a wallet, the street behind" },
+  { src: "/work/media/film-05.mp4", title: "The window", line: "A map held in the airplane window" },
+  { src: "/work/media/film-06.mp4", title: "At the grille", line: "A presenter with the car behind her" },
+  { src: "/work/media/film-07.mp4", title: "The workshop", line: "A finish, chosen in the workshop" },
+  { src: "/work/media/film-08.mp4", title: "The couch", line: "Two players under the mural" },
+  { src: "/work/media/film-09.mp4", title: "Blue Outlet", line: "The shopfront, open", wide: true },
+] as const;
 
 export const sectors = [
   { id: "all", label: "All" },

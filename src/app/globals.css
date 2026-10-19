@@ -20,6 +20,23 @@ body {
   font-family: var(--font-brand), "Playfair Display", serif;
 }
 
+@keyframes wall-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.wall-marquee {
+  animation: wall-marquee 46s linear infinite;
+}
+
+.wall-marquee:hover {
+  animation-play-state: paused;
+}
+
 .perspective-2000 {
   perspective: 2000px;
 }

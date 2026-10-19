@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { agency } from "@/lib/content";
 import { sound } from "@/lib/sound";
 
@@ -42,6 +43,24 @@ export function ContactSection() {
           <p className="mt-3 text-sm leading-relaxed text-zinc-400 md:text-base">
             Tell us the field, what you need, and what should change. The note opens in your mail app to {agency.email}.
           </p>
+          <ul className="mt-6 space-y-3 text-sm text-zinc-300">
+            <li className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-red-500" />
+              {agency.location}
+            </li>
+            <li>
+              <a href={`mailto:${agency.email}`} className="flex items-center gap-2 hover:text-white">
+                <Mail className="h-4 w-4 text-red-500" />
+                {agency.email}
+              </a>
+            </li>
+            <li>
+              <a href={agency.phoneHref} className="flex items-center gap-2 hover:text-white">
+                <Phone className="h-4 w-4 text-red-500" />
+                {agency.phone}
+              </a>
+            </li>
+          </ul>
         </div>
         <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-zinc-800 bg-[#0c0c10] p-5 sm:p-8 lg:col-span-7">
           <div className="grid gap-4 sm:grid-cols-2">

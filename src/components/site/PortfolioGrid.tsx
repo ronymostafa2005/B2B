@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, Search } from "lucide-react";
-import { filterProjects, matchBrief, prompts, projects, sectors, styles, type Project, type SectorId, type StyleFilter } from "@/lib/content";
+import { filterProjects, matchBrief, prompts, projects, sectors, studioFrames, styles, type Project, type SectorId, type StyleFilter } from "@/lib/content";
 import { sound } from "@/lib/sound";
 
 export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: Project) => void }) {
@@ -103,6 +103,27 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
             {prompt}
           </button>
         ))}
+      </div>
+
+      <div className="mb-10">
+        <p className="mb-4 text-xs tracking-[0.22em] text-zinc-500 uppercase">Offers and the clinic</p>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {studioFrames.map((frame) => (
+            <figure key={frame.src} className="group">
+              <div className="relative bg-[#070709] p-3 ring-1 ring-white/10">
+                <span className="pointer-events-none absolute top-1.5 left-1.5 h-3.5 w-3.5 border-t border-l border-red-600" />
+                <span className="pointer-events-none absolute top-1.5 right-1.5 h-3.5 w-3.5 border-t border-r border-red-600" />
+                <span className="pointer-events-none absolute bottom-1.5 left-1.5 h-3.5 w-3.5 border-b border-l border-red-600" />
+                <span className="pointer-events-none absolute right-1.5 bottom-1.5 h-3.5 w-3.5 border-r border-b border-red-600" />
+                <Image src={frame.src} alt={frame.line} width={480} height={517} className="h-auto w-full" />
+              </div>
+              <figcaption className="mt-2 flex items-baseline justify-between gap-2">
+                <span className="text-sm font-semibold text-white">{frame.title}</span>
+                <span className="text-[11px] text-zinc-500">{frame.line}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

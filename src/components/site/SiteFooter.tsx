@@ -48,10 +48,17 @@ export function SiteFooter() {
           </button>
         </div>
         <div className="flex flex-col items-start justify-between gap-3 pt-6 text-xs text-zinc-500 sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} B2B. Formerly {agency.former}.</p>
-          <a href={`mailto:${agency.email}`} className="hover:text-red-400">
-            {agency.email}
-          </a>
+          <p>
+            © {new Date().getFullYear()} B2B. Formerly {agency.former}. {agency.location}.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <a href={`mailto:${agency.email}`} className="hover:text-red-400">
+              {agency.email}
+            </a>
+            <a href={agency.phoneHref} className="hover:text-red-400">
+              {agency.phone}
+            </a>
+          </div>
         </div>
       </div>
     </footer>
