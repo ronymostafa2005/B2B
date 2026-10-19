@@ -1,7 +1,9 @@
 "use client";
 
-import { Mail, MapPin, Phone } from "lucide-react";
+import { BarChart3, Clock3, Gem, Layers3, Lightbulb, Mail, MapPin, MessagesSquare, Phone, Scale, Users } from "lucide-react";
 import { agency, whyUs } from "@/lib/content";
+
+const whyIcons = [Users, Lightbulb, Gem, Clock3, Layers3, MessagesSquare, BarChart3, Scale] as const;
 
 export function About() {
   return (
@@ -30,17 +32,6 @@ export function About() {
               <p className="mt-2 text-sm leading-relaxed text-zinc-300">{agency.mission}</p>
             </article>
           </div>
-          <div>
-            <h3 className="text-sm font-bold tracking-wide text-white">Why this studio</h3>
-            <ol className="mt-4 grid gap-3 sm:grid-cols-2">
-              {whyUs.map((item, index) => (
-                <li key={item} className="flex items-start gap-3 rounded-xl border border-zinc-900 bg-black/40 px-3 py-3 text-sm text-zinc-300">
-                  <span className="font-brand text-red-500">{String(index + 1).padStart(2, "0")}</span>
-                  {item}
-                </li>
-              ))}
-            </ol>
-          </div>
         </div>
         <aside className="rounded-3xl border border-red-500/40 bg-gradient-to-br from-[#120304] via-[#09090c] to-[#040405] p-6 shadow-[0_20px_50px_rgba(229,9,20,0.3)] sm:p-8 lg:col-span-5">
           <div className="mb-6 flex items-center justify-between border-b border-zinc-800 pb-4">
@@ -67,6 +58,28 @@ export function About() {
             </li>
           </ul>
         </aside>
+      </div>
+      <div className="mt-14">
+        <h3 className="font-brand text-2xl font-black text-white md:text-3xl">Why this studio</h3>
+        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {whyUs.map((item, index) => {
+            const Icon = whyIcons[index];
+            return (
+              <li key={item} className="flex items-center gap-4 rounded-2xl border border-zinc-800 bg-[#0c0c10] px-4 py-4">
+                <span className="relative grid h-16 w-16 shrink-0 place-items-center [perspective:280px]">
+                  <span className="absolute bottom-1 h-2 w-10 rounded-full bg-black/80 blur-[1px]" />
+                  <span className="relative grid h-12 w-12 place-items-center rounded-xl border border-red-300/50 bg-gradient-to-br from-[#ff4d57] via-[#c1121f] to-[#4a0610] shadow-[inset_0_1px_0_rgba(255,255,255,0.55),4px_8px_0_#2a0508] [transform:rotateX(22deg)_rotateY(-24deg)]">
+                    <Icon className="h-5 w-5 text-white" strokeWidth={2.25} />
+                  </span>
+                </span>
+                <span>
+                  <span className="font-brand text-xs text-red-500">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="mt-0.5 block text-sm font-semibold text-white">{item}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );
