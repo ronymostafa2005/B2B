@@ -46,7 +46,7 @@ export function EstimatorPanel() {
 
   return (
     <section id="estimator" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-      <div className="rounded-3xl border border-red-950/60 bg-gradient-to-b from-[#100809] via-[#0c0c10] to-[#070709] p-5 shadow-[0_20px_60px_rgba(229,9,20,0.15)] sm:p-10">
+      <div data-flow className="rounded-3xl border border-red-950/60 bg-gradient-to-b from-[#100809] via-[#0c0c10] to-[#070709] p-5 shadow-[0_20px_60px_rgba(229,9,20,0.15)] sm:p-10">
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-600/20 px-3 py-1 text-xs text-red-400">
             <Calculator className="h-3.5 w-3.5" />

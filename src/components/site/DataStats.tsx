@@ -35,7 +35,7 @@ export function DataStats() {
   }, []);
 
   return (
-    <section id="agency-data" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+    <section id="agency-data" data-flow className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto mb-12 max-w-3xl text-center">
         <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
           THE RECORD

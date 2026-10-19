@@ -10,7 +10,7 @@ const chapters = [
     id: "campaign",
     label: "Campaign",
     title: "The picture that sells the place.",
-    text: "KIVO, New Era, Glory, and Aqar Expo. One frame has to carry the name.",
+    text: "New Era, Glory, and Aqar Expo. One frame has to carry the name.",
   },
   {
     id: "app",
@@ -28,10 +28,10 @@ const chapters = [
 
 const posters = [
   {
-    src: "/work/archive/kivo/01.webp",
-    title: "KIVO",
-    line: "Production that performs",
-    href: "/work/kivo",
+    src: "/work/archive/rise-tower/01.webp",
+    title: "Rise Tower",
+    line: "The tower, and the offer",
+    href: "/work/rise-tower",
   },
   {
     src: "/work/archive/new-era/01.webp",

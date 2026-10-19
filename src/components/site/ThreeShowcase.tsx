@@ -26,7 +26,7 @@ const orbit = [
   "tevo",
   "onyx",
   "protexa",
-  "kivo",
+  "el-khateeb",
   "new-era",
   "glory",
   "aqar-expo",
@@ -277,6 +277,7 @@ export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: 
   return (
     <section
       id="showcase-3d"
+      data-flow
       className="relative h-[620px] w-full overflow-hidden border-y border-zinc-900/80 bg-[#070709] select-none md:h-[740px] lg:h-[820px]"
     >
       <div ref={mountRef} className="absolute inset-0 z-0 h-full w-full cursor-grab active:cursor-grabbing" />

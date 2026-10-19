@@ -1,95 +1,86 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { mediaFilms } from "@/lib/content";
+import { useState } from "react";
 
-function Gate({
-  index,
-  active,
-  onPick,
+type Film = {
+  src: string;
+  poster: string;
+  title: string;
+  line: string;
+  wide?: boolean;
+};
+
+export function ScreeningRoom({
+  eyebrow,
+  title,
+  films,
 }: {
-  index: number;
-  active: boolean;
-  onPick: (index: number) => void;
+  eyebrow: string;
+  title: string;
+  films: readonly Film[];
 }) {
-  const film = mediaFilms[index];
-  const wide = active && "wide" in film && film.wide;
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const park = () => {
-      if (!active && video.currentTime < 0.2) video.currentTime = 0.35;
-    };
-    video.addEventListener("loadeddata", park);
-    if (active) {
-      video.muted = true;
-      void video.play().catch(() => undefined);
-    } else {
-      video.pause();
-    }
-    return () => video.removeEventListener("loadeddata", park);
-  }, [active, film.src]);
-
-  const frame = (
-    <span
-      className={`relative block overflow-hidden border border-white/15 ${
-        wide ? "aspect-video w-[min(92vw,920px)]" : active ? "aspect-[9/16] w-[min(78vw,380px)]" : "aspect-[9/16] w-[22vw] max-w-[170px]"
-      } ${active ? "border-red-600 shadow-[0_0_40px_rgba(229,9,20,0.28)]" : "opacity-80"}`}
-    >
-      <video
-        ref={videoRef}
-        key={film.src}
-        src={film.src}
-        controls={active}
-        playsInline
-        muted
-        loop={active}
-        preload="auto"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-    </span>
-  );
-
-  return (
-    <div className={`shrink-0 ${active ? "" : "hidden sm:block"}`}>
-      {active ? (
-        frame
-      ) : (
-        <button type="button" onClick={() => onPick(index)} className="block">
-          {frame}
-        </button>
-      )}
-      <p className={`mt-2 max-w-[380px] text-sm font-semibold ${active ? "text-white" : "text-zinc-400"}`}>{film.title}</p>
-      {active ? <p className="mt-0.5 max-w-[380px] text-[11px] text-zinc-500">{film.line}</p> : null}
-    </div>
-  );
-}
-
-export function ScreeningRoom() {
   const [active, setActive] = useState(0);
-  const count = mediaFilms.length;
-  const slots = [(active - 1 + count) % count, active, (active + 1) % count];
+  const film = films[active];
 
   return (
-    <div className="mt-14">
-      <div className="flex items-center justify-center gap-3 px-4 sm:gap-5">
-        {slots.map((index, slot) => (
-          <Gate key={`${slot}-${mediaFilms[index].src}`} index={index} active={slot === 1} onPick={setActive} />
-        ))}
+    <div data-flow className="mx-auto mt-16 max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs tracking-[0.24em] text-red-500">{eyebrow}</p>
+          <h3 className="font-brand mt-2 text-2xl font-black text-white sm:text-4xl">{title}</h3>
+        </div>
+        <p className="text-sm text-zinc-500">
+          {String(active + 1).padStart(2, "0")} / {String(films.length).padStart(2, "0")}
+        </p>
       </div>
-      <div className="mx-auto mt-5 flex max-w-5xl gap-2 overflow-x-auto px-4 pb-2 sm:hidden">
-        {mediaFilms.map((film, index) => (
-          <button
-            key={film.src}
-            type="button"
-            onClick={() => setActive(index)}
-            className={`shrink-0 border px-3 py-2 text-xs ${index === active ? "border-red-600 text-white" : "border-zinc-800 text-zinc-400"}`}
-          >
-            {film.title}
-          </button>
-        ))}
+
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-black shadow-[0_24px_80px_rgba(229,9,20,0.16)]">
+          <div className={`relative bg-black ${film.wide ? "aspect-video" : "mx-auto aspect-[9/16] w-full max-w-[420px]"}`}>
+            <video
+              key={film.src}
+              src={film.src}
+              poster={film.poster}
+              controls
+              playsInline
+              muted
+              autoPlay
+              loop
+              preload="metadata"
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </div>
+          <div className="border-t border-white/10 px-5 py-4">
+            <p className="font-brand text-xl font-bold text-white">{film.title}</p>
+            <p className="mt-1 text-sm text-zinc-400">{film.line}</p>
+          </div>
+        </div>
+
+        <div className="flex gap-3 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
+          {films.map((item, index) => {
+            const on = index === active;
+            return (
+              <button
+                key={item.src}
+                type="button"
+                onClick={() => setActive(index)}
+                className={`flex w-56 shrink-0 items-center gap-3 rounded-2xl border p-2 text-left transition lg:w-full ${
+                  on ? "border-red-500 bg-red-950/40" : "border-zinc-800 bg-[#0c0c10] hover:border-zinc-600"
+                }`}
+              >
+                <img
+                  src={item.poster}
+                  alt=""
+                  className={`h-16 w-12 rounded-lg object-cover ${item.wide ? "w-20" : ""}`}
+                />
+                <span>
+                  <span className="block text-[10px] tracking-widest text-zinc-500 uppercase">{String(index + 1).padStart(2, "0")}</span>
+                  <span className={`block text-sm font-semibold ${on ? "text-white" : "text-zinc-300"}`}>{item.title}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

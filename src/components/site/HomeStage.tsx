@@ -10,6 +10,8 @@ import { Hero } from "@/components/site/Hero";
 import { PortfolioGrid } from "@/components/site/PortfolioGrid";
 import { ProjectModal } from "@/components/site/ProjectModal";
 import { Services } from "@/components/site/Services";
+import { FlowRoot } from "@/components/site/Flow";
+import { SiteIntro } from "@/components/site/SiteIntro";
 import { StudioBoards } from "@/components/site/StudioBoards";
 import type { Project } from "@/lib/content";
 
@@ -24,15 +26,18 @@ export function HomeStage() {
 
   return (
     <>
-      <Hero onSelectProject={open} />
-      <ThreeShowcase onSelectProject={open} />
-      <PortfolioGrid onSelectProject={open} />
-      <DataStats />
-      <Services />
-      <StudioBoards />
-      <EstimatorPanel />
-      <About />
-      <ContactSection />
+      <SiteIntro />
+      <FlowRoot>
+        <Hero onSelectProject={open} />
+        <ThreeShowcase onSelectProject={open} />
+        <PortfolioGrid onSelectProject={open} />
+        <DataStats />
+        <Services />
+        <StudioBoards />
+        <EstimatorPanel />
+        <About />
+        <ContactSection />
+      </FlowRoot>
       <ProjectModal project={selected} onClose={() => setSelected(null)} />
     </>
   );

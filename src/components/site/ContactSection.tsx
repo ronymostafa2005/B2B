@@ -35,7 +35,7 @@ export function ContactSection() {
   return (
     <section id="contact" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="grid gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-5">
+        <div data-flow className="lg:col-span-5">
           <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
             15-MINUTE CONSULT
           </div>
@@ -62,7 +62,7 @@ export function ContactSection() {
             </li>
           </ul>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-zinc-800 bg-[#0c0c10] p-5 sm:p-8 lg:col-span-7">
+        <form data-flow onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-zinc-800 bg-[#0c0c10] p-5 sm:p-8 lg:col-span-7">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name" name="name" required autoComplete="name" />
             <Field label="Email" name="email" type="email" required autoComplete="email" />

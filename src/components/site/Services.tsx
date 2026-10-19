@@ -1,88 +1,99 @@
 "use client";
 
-import { CheckCircle2, Film, Megaphone, Palette, Sparkles } from "lucide-react";
-
-const services = [
-  {
-    title: "Digital Marketing",
-    tag: "FEED",
-    icon: Megaphone,
-    text: "Offers, seasonal posts, and the supermarket set. The price and the brand stay in the same frame.",
-    deliverables: ["Offer posts", "Seasonal set", "Caption direction", "Feed export"],
-  },
-  {
-    title: "Media Production",
-    tag: "FRAME",
-    icon: Film,
-    text: "Clinic campaigns, logo films, and the frames that carry a name from the booth to the phone.",
-    deliverables: ["Key visual", "Clinic set", "Logo lockup", "Booth frames"],
-  },
-  {
-    title: "Software Solutions",
-    tag: "PRODUCT",
-    icon: Palette,
-    text: "Product screens for the field and the clinic. Sanvix tracks visits. The Gobran clinic books the next slot.",
-    deliverables: ["Sanvix field app", "Clinic booking", "Admin and rep views", "Handover screens"],
-  },
-  {
-    title: "AI Solutions",
-    tag: "ASSIST",
-    icon: Sparkles,
-    text: "An assistant inside the product. The clinic screen takes the symptoms and offers a next step.",
-    deliverables: ["Clinic assistant", "Symptom prompt", "Next-step screen", "In-product placement"],
-  },
-];
+import { useEffect, useState } from "react";
+import { studioServices } from "@/lib/content";
 
 export function Services() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const service = studioServices[active];
+
+  useEffect(() => {
+    if (paused) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const timer = window.setInterval(() => {
+      setActive((current) => (current + 1) % studioServices.length);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [paused]);
+
   return (
-    <section id="services" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-      <div className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-        <div>
+    <section id="services" className="border-t border-zinc-900/80 py-16 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div data-flow className="mb-10 max-w-2xl">
           <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
             WHAT THE STUDIO SHIPS
           </div>
           <h2 className="font-brand text-3xl font-black text-white md:text-5xl">
             From the brief to <span className="text-red-600">the files</span>
           </h2>
+          <p className="mt-3 text-sm text-zinc-400 md:text-base">
+            Four offers. One stays on stage, and the line moves when the next one is ready.
+          </p>
         </div>
-        <p className="max-w-md text-sm text-zinc-400 md:text-base">
-          Digital marketing, media production, software, and AI product screens. The studio is in Zagazig, Sharqia.
-        </p>
-      </div>
-      <div className="grid gap-6 md:grid-cols-2">
-        {services.map((service) => {
-          const Icon = service.icon;
-          return (
-            <article
-              key={service.title}
-              className="flex flex-col justify-between rounded-3xl border border-zinc-800/80 bg-[#0c0c10] p-6 transition hover:-translate-y-1 hover:border-red-500/60 hover:shadow-[0_20px_50px_rgba(229,9,20,0.2)] sm:p-8"
-            >
+
+        <div
+          data-flow
+          className="grid items-stretch gap-6 lg:grid-cols-12"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <ol className="flex gap-3 overflow-x-auto lg:col-span-4 lg:flex-col lg:overflow-visible">
+            {studioServices.map((item, index) => {
+              const on = index === active;
+              return (
+                <li key={item.title} className="min-w-[220px] flex-1 lg:min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setActive(index)}
+                    aria-current={on ? "true" : undefined}
+                    className={`relative w-full overflow-hidden rounded-2xl border px-4 py-4 text-left transition ${
+                      on ? "border-red-500/70 bg-red-950/30" : "border-zinc-800 bg-[#0c0c10] hover:border-zinc-600"
+                    }`}
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="font-brand text-xs text-red-500">{item.index}</span>
+                      <span className="text-[10px] tracking-[0.22em] text-zinc-500 uppercase">{item.tag}</span>
+                    </span>
+                    <span className={`mt-1 block font-brand text-lg font-bold ${on ? "text-white" : "text-zinc-300"}`}>
+                      {item.title}
+                    </span>
+                    <span className="mt-3 block h-0.5 overflow-hidden rounded-full bg-zinc-800">
+                      <span className={`block h-full bg-red-600 ${on && !paused ? "service-meter" : on ? "w-full" : "w-0"}`} />
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+
+          <article key={service.title} className="service-panel relative overflow-hidden rounded-[28px] border border-red-500/30 bg-[#10060a] lg:col-span-8">
+            <div className="pointer-events-none absolute -top-16 -right-10 font-brand text-[9rem] leading-none font-black text-white/5">
+              {service.index}
+            </div>
+            <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-red-600/20 blur-3xl" />
+            <div className="relative flex h-full flex-col justify-between p-6 sm:p-10">
               <div>
-                <div className="mb-6 flex items-center justify-between">
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-3.5">
-                    <Icon className="h-6 w-6 text-red-500" />
-                  </div>
-                  <span className="rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1 text-[10px] tracking-widest text-zinc-400 uppercase">
-                    {service.tag}
-                  </span>
-                </div>
-                <h3 className="font-brand text-2xl font-bold text-white">{service.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-400">{service.text}</p>
+                <p className="text-xs tracking-[0.28em] text-red-400 uppercase">{service.tag}</p>
+                <h3 className="font-brand mt-3 text-4xl font-black text-white sm:text-5xl">{service.title}</h3>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-zinc-300">{service.text}</p>
               </div>
-              <div className="mt-6 border-t border-zinc-900 pt-5">
-                <span className="mb-2 block text-[11px] tracking-wider text-zinc-500 uppercase">Deliverables</span>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {service.deliverables.map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-xs text-zinc-300">
-                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-red-500" />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </article>
-          );
-        })}
+              <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+                {service.deliverables.map((item, index) => (
+                  <li
+                    key={item}
+                    className="service-chip rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                    style={{ animationDelay: `${120 + index * 90}ms` }}
+                  >
+                    <span className="mr-2 font-brand text-xs text-red-500">{String(index + 1).padStart(2, "0")}</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   );

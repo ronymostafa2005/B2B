@@ -18,14 +18,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col items-start justify-between gap-8 border-b border-zinc-900 pb-10 md:flex-row md:items-center">
           <div>
-            <div className="flex items-center gap-3">
-              <span className="font-brand text-4xl font-black tracking-tighter text-red-600 drop-shadow-[0_0_15px_rgba(229,9,20,0.8)]">
-                B2B.
-              </span>
-              <span className="border-l border-zinc-800 pl-3 text-xs tracking-widest text-zinc-400 uppercase">
-                Creative studio
-              </span>
-            </div>
+            <img src="/brand/wordmark.png" alt="B2B. Marketing Agency" className="h-16 w-auto" />
             <p className="mt-2 max-w-sm text-xs text-zinc-400">{agency.description}</p>
           </div>
           <div className="flex flex-wrap gap-5 text-xs text-zinc-400">

@@ -35,14 +35,13 @@ export function Navbar() {
             event.preventDefault();
             go("#top");
           }}
-          className="group flex items-center gap-2"
+          className="group flex items-center"
         >
-          <span className="font-brand text-3xl font-black tracking-tighter text-red-600 drop-shadow-[0_0_15px_rgba(229,9,20,0.8)] transition-transform group-hover:scale-105 sm:text-4xl">
-            B2B.
-          </span>
-          <span className="hidden border-l border-zinc-800 pl-2 text-[9px] font-medium tracking-widest text-zinc-400 uppercase sm:inline-block">
-            Identity & campaigns
-          </span>
+          <img
+            src="/brand/wordmark.png"
+            alt="B2B. Marketing Agency"
+            className="h-10 w-auto transition-transform group-hover:scale-105 sm:h-12"
+          />
         </a>
 
         <div className="hidden items-center gap-6 text-sm font-medium text-zinc-300 lg:flex">

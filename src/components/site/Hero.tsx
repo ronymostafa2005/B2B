@@ -60,7 +60,7 @@ export function Hero({ onSelectProject }: { onSelectProject: (project: Project) 
     <section id="top" className="relative mx-auto max-w-7xl overflow-hidden px-4 pt-28 pb-16 sm:px-6 md:pt-36 md:pb-24 lg:px-8">
       <div className="pointer-events-none absolute top-1/3 left-1/4 h-[380px] w-[min(720px,90%)] -translate-y-1/2 rounded-full bg-red-600/12 blur-[140px]" />
       <div className="relative z-10 grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-        <div className="space-y-6 text-center lg:col-span-7 lg:text-left">
+        <div data-flow className="space-y-6 text-center lg:col-span-7 lg:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-4 py-1.5 text-xs text-red-400 shadow-[0_0_15px_rgba(229,9,20,0.3)]">
             <Sparkles className="h-3.5 w-3.5 text-red-500" />
             <span>B2B. creative studio · identities, campaigns, social</span>
@@ -99,6 +99,7 @@ export function Hero({ onSelectProject }: { onSelectProject: (project: Project) 
         </div>
         <form
           onSubmit={onRead}
+          data-flow
           className="rounded-[28px] border border-white/15 bg-white/5 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-6 lg:col-span-5"
         >
           <div className="flex items-center gap-2 text-xs tracking-[0.18em] text-red-300 uppercase">
@@ -162,7 +163,7 @@ export function Hero({ onSelectProject }: { onSelectProject: (project: Project) 
           ) : null}
         </form>
       </div>
-      <div className="relative z-10 mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-3 md:grid-cols-4">
+      <div data-flow className="relative z-10 mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-3 md:grid-cols-4">
         {impact.map((item) => (
           <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-md">
             <div className="font-brand text-2xl font-black text-white sm:text-3xl">

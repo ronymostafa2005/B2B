@@ -41,18 +41,18 @@ export const logoClients = [
 ] as const;
 
 export const marks = [
-  { src: "/work/marks/a-01.png", name: "Sweet Home" },
-  { src: "/work/marks/a-02.png", name: "Chatilli Ghura" },
-  { src: "/work/marks/a-03.png", name: "Allen X" },
-  { src: "/work/marks/a-04.png", name: "Zain Store" },
-  { src: "/work/marks/a-05.png", name: "Balasa" },
-  { src: "/work/marks/a-06.png", name: "Tohom" },
-  { src: "/work/marks/b-01.png", name: "Vitch Chocolate" },
-  { src: "/work/marks/b-02.png", name: "Sanvix" },
-  { src: "/work/marks/b-03.png", name: "Blue Outlet" },
-  { src: "/work/marks/b-04.png", name: "The Invest" },
-  { src: "/work/marks/b-05.png", name: "Metro" },
-  { src: "/work/marks/b-06.png", name: "Dr. Mahmoud Gobran" },
+  { src: "/work/marks/clear/sweet-home.png", name: "Sweet Home" },
+  { src: "/work/marks/clear/chatilli.png", name: "Chatilli Ghura" },
+  { src: "/work/marks/clear/allen-x.png", name: "Allen X" },
+  { src: "/work/marks/clear/zain.png", name: "Zain Store" },
+  { src: "/work/marks/clear/balasa.png", name: "Balasa" },
+  { src: "/work/marks/clear/tohom.png", name: "Tohom" },
+  { src: "/work/marks/clear/vitch.png", name: "Vitch Chocolate" },
+  { src: "/work/marks/clear/sanvix.png", name: "Sanvix" },
+  { src: "/work/marks/clear/blue-outlet.png", name: "Blue Outlet" },
+  { src: "/work/marks/clear/the-invest.png", name: "The Invest" },
+  { src: "/work/marks/clear/metro.png", name: "Metro" },
+  { src: "/work/marks/clear/gobran.png", name: "Dr. Mahmoud Gobran" },
 ] as const;
 
 export const studioFrames = [
@@ -66,16 +66,97 @@ export const studioFrames = [
   { src: "/work/posters/clinic-04.png", title: "Clinic", line: "The offer beside the portrait" },
 ] as const;
 
-export const mediaFilms = [
-  { src: "/work/media/film-01.mp4", title: "On the road", line: "A presenter with the car in frame" },
-  { src: "/work/media/film-02.mp4", title: "Majestic Home", line: "Samples on the table, spoken to camera" },
-  { src: "/work/media/film-03.mp4", title: "Majestic Furniture", line: "The bridal set, seated in the showroom" },
-  { src: "/work/media/film-04.mp4", title: "At the table", line: "A phone, a wallet, the street behind" },
-  { src: "/work/media/film-05.mp4", title: "The window", line: "A map held in the airplane window" },
-  { src: "/work/media/film-06.mp4", title: "At the grille", line: "A presenter with the car behind her" },
-  { src: "/work/media/film-07.mp4", title: "The workshop", line: "A finish, chosen in the workshop" },
-  { src: "/work/media/film-08.mp4", title: "The couch", line: "Two players under the mural" },
-  { src: "/work/media/film-09.mp4", title: "Blue Outlet", line: "The shopfront, open", wide: true },
+export const filmPrograms = [
+  {
+    id: "production",
+    eyebrow: "PROJECT MEDIA PRODUCTION",
+    title: "Shot for the brand",
+    films: [
+      {
+        src: "/work/media/prod-01.mp4",
+        poster: "/work/media/posters/prod-01.jpg",
+        title: "Chicken Hills",
+        line: "The shopfront, from the street",
+        wide: true,
+      },
+      {
+        src: "/work/media/prod-02.mp4",
+        poster: "/work/media/posters/prod-02.jpg",
+        title: "At the table",
+        line: "A phone, a wallet, the street behind",
+      },
+      {
+        src: "/work/media/prod-03.mp4",
+        poster: "/work/media/posters/prod-03.jpg",
+        title: "The counter",
+        line: "Service, filmed across the glass",
+        wide: true,
+      },
+      {
+        src: "/work/media/prod-04.mp4",
+        poster: "/work/media/posters/prod-04.jpg",
+        title: "On the road",
+        line: "A presenter with the car in frame",
+      },
+    ],
+  },
+  {
+    id: "social",
+    eyebrow: "SOCIAL CONTENT",
+    title: "Cut for the feed",
+    films: [
+      {
+        src: "/work/media/reel-01.mp4",
+        poster: "/work/media/posters/reel-01.jpg",
+        title: "The balcony",
+        line: "A phone, held in the open air",
+      },
+      {
+        src: "/work/media/reel-02.mp4",
+        poster: "/work/media/posters/reel-02.jpg",
+        title: "Private universities",
+        line: "A presenter, with the campus in frame",
+      },
+      {
+        src: "/work/media/reel-03.mp4",
+        poster: "/work/media/posters/reel-03.jpg",
+        title: "The square",
+        line: "The cafe, seen from above",
+        wide: true,
+      },
+    ],
+  },
+] as const;
+
+export const studioServices = [
+  {
+    index: "01",
+    title: "Digital Marketing",
+    tag: "FEED",
+    text: "Offers, seasonal posts, and the supermarket set. The price and the brand stay in the same frame.",
+    deliverables: ["Offer posts", "Seasonal set", "Caption direction", "Feed export"],
+  },
+  {
+    index: "02",
+    title: "Media Production",
+    tag: "FRAME",
+    text: "Clinic campaigns, logo films, and the frames that carry a name from the booth to the phone.",
+    deliverables: ["Key visual", "Clinic set", "Logo lockup", "Booth frames"],
+  },
+  {
+    index: "03",
+    title: "Software Solutions",
+    tag: "PRODUCT",
+    text: "Product screens for the field and the clinic. Sanvix tracks visits. The Gobran clinic books the next slot.",
+    deliverables: ["Sanvix field app", "Clinic booking", "Admin and rep views", "Handover screens"],
+  },
+  {
+    index: "04",
+    title: "AI Solutions",
+    tag: "ASSIST",
+    text: "An assistant inside the product. The clinic screen takes the symptoms and offers a next step.",
+    deliverables: ["Clinic assistant", "Symptom prompt", "Next-step screen", "In-product placement"],
+  },
 ] as const;
 
 export const sectors = [
@@ -294,19 +375,6 @@ export const projects: Project[] = [
     problem: "Luxury copy was doing the work the pictures should do.",
     solution: "A property set where the picture leads and the mark stays in place.",
     keys: ["lux", "realty", "luxury", "فاخر", "عقار", "real estate", "property", "calm"],
-  },
-  {
-    slug: "kivo",
-    title: "KIVO",
-    arabic: "كيفو",
-    sector: "places",
-    needs: ["campaign", "social"],
-    styles: ["bold", "modern"],
-    images: shots("kivo", 6),
-    alt: "KIVO campaign frames.",
-    problem: "The offer changed by post, and the brand did not.",
-    solution: "One plan of frames, so each post still belongs to KIVO.",
-    keys: ["kivo", "كيفو", "brand", "social", "حملة", "retail", "bold"],
   },
   {
     slug: "ouzu-cafe",

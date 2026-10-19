@@ -33,7 +33,7 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
 
   return (
     <section id="portfolio" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-      <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+      <div data-flow className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
             SELECTED CASE STUDIES
@@ -109,13 +109,22 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
         <p className="mb-4 text-xs tracking-[0.22em] text-zinc-500 uppercase">Offers and the clinic</p>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {studioFrames.map((frame) => (
-            <figure key={frame.src} className="group">
+            <figure key={frame.src} data-flow className="group">
               <div className="relative bg-[#070709] p-3 ring-1 ring-white/10">
                 <span className="pointer-events-none absolute top-1.5 left-1.5 h-3.5 w-3.5 border-t border-l border-red-600" />
                 <span className="pointer-events-none absolute top-1.5 right-1.5 h-3.5 w-3.5 border-t border-r border-red-600" />
                 <span className="pointer-events-none absolute bottom-1.5 left-1.5 h-3.5 w-3.5 border-b border-l border-red-600" />
                 <span className="pointer-events-none absolute right-1.5 bottom-1.5 h-3.5 w-3.5 border-r border-b border-red-600" />
-                <Image src={frame.src} alt={frame.line} width={480} height={517} className="h-auto w-full" />
+                <Image
+                  src={frame.src}
+                  alt={frame.line}
+                  width={480}
+                  height={517}
+                  quality={100}
+                  unoptimized
+                  sizes="(min-width: 1024px) 280px, 45vw"
+                  className="h-auto w-full"
+                />
               </div>
               <figcaption className="mt-2 flex items-baseline justify-between gap-2">
                 <span className="text-sm font-semibold text-white">{frame.title}</span>
@@ -135,6 +144,7 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
               sound.playSuccess();
               onSelectProject(project);
             }}
+            data-flow
             className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#0d0d11] text-left transition duration-300 hover:-translate-y-2 hover:border-red-500/60 hover:shadow-[0_20px_40px_rgba(229,9,20,0.25)]"
           >
             <span className="relative block h-56 overflow-hidden sm:h-64">

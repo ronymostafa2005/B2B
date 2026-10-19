@@ -9,7 +9,7 @@ export function About() {
   return (
     <section id="about" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="grid items-start gap-10 lg:grid-cols-12">
-        <div className="space-y-8 lg:col-span-7">
+        <div data-flow className="space-y-8 lg:col-span-7">
           <div>
             <div className="inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
               ABOUT B2B.
@@ -33,12 +33,12 @@ export function About() {
             </article>
           </div>
         </div>
-        <aside className="rounded-3xl border border-red-500/40 bg-gradient-to-br from-[#120304] via-[#09090c] to-[#040405] p-6 shadow-[0_20px_50px_rgba(229,9,20,0.3)] sm:p-8 lg:col-span-5">
+        <aside data-flow className="rounded-3xl border border-red-500/40 bg-gradient-to-br from-[#120304] via-[#09090c] to-[#040405] p-6 shadow-[0_20px_50px_rgba(229,9,20,0.3)] sm:p-8 lg:col-span-5">
           <div className="mb-6 flex items-center justify-between border-b border-zinc-800 pb-4">
             <span className="text-xs font-bold text-red-500">STUDIO</span>
             <span className="h-2.5 w-2.5 rounded-full bg-red-600 shadow-[0_0_8px_#e50914]" />
           </div>
-          <p className="font-brand text-5xl font-black text-white">B2B.</p>
+          <img src="/brand/wordmark.png" alt="B2B. Marketing Agency" className="h-20 w-auto" />
           <ul className="mt-6 space-y-4 text-sm text-zinc-300">
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
@@ -61,7 +61,7 @@ export function About() {
       </div>
       <div className="mt-14">
         <h3 className="font-brand text-2xl font-black text-white md:text-3xl">Why this studio</h3>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ol data-flow className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {whyUs.map((item, index) => {
             const Icon = whyIcons[index];
             return (
