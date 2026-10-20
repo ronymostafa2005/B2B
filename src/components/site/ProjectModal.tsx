@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { sectors, type Project } from "@/lib/content";
 
@@ -91,9 +90,6 @@ export function ProjectModal({ project, onClose }: { project: Project | null; on
                 <source src={project.video} type="video/mp4" />
               </video>
             ) : null}
-            <Link href={`/work/${project.slug}`} className="inline-flex rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white" onClick={onClose}>
-              Open the full case
-            </Link>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart3, Clock3, Gem, Layers3, Lightbulb, Mail, MapPin, MessagesSquare, Phone, Scale, Users } from "lucide-react";
+import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/site/SocialIcons";
 import { agency, whyUs } from "@/lib/content";
 
 const whyIcons = [Users, Lightbulb, Gem, Clock3, Layers3, MessagesSquare, BarChart3, Scale] as const;
@@ -15,7 +16,7 @@ export function About() {
               ABOUT B2B.
             </div>
             <h2 className="font-brand mt-4 text-3xl leading-tight font-black text-white md:text-5xl">
-              A studio in Zagazig
+              A studio
               <br />
               <span className="text-red-600">for the next job</span>
             </h2>
@@ -54,6 +55,24 @@ export function About() {
               <a href={agency.phoneHref} className="flex items-start gap-3 hover:text-white">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                 {agency.phone}
+              </a>
+            </li>
+            <li>
+              <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
+                <WhatsAppIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                {agency.whatsapp}
+              </a>
+            </li>
+            <li>
+              <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
+                <FacebookIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                Facebook
+              </a>
+            </li>
+            <li>
+              <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
+                <InstagramIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                Instagram
               </a>
             </li>
           </ul>

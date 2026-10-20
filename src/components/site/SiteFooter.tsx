@@ -51,6 +51,15 @@ export function SiteFooter() {
             <a href={agency.phoneHref} className="hover:text-red-400">
               {agency.phone}
             </a>
+            <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+              WhatsApp
+            </a>
+            <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+              Facebook
+            </a>
+            <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+              Instagram
+            </a>
           </div>
         </div>
       </div>

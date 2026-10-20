@@ -136,7 +136,7 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((project) => (
+        {visible.map((project, index) => (
           <button
             key={project.slug}
             type="button"
@@ -145,29 +145,41 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
               onSelectProject(project);
             }}
             data-flow
-            className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#0d0d11] text-left transition duration-300 hover:-translate-y-2 hover:border-red-500/60 hover:shadow-[0_20px_40px_rgba(229,9,20,0.25)]"
+            className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#0d0d11] text-left transition duration-300 hover:border-zinc-600"
           >
-            <span className="relative block h-56 overflow-hidden sm:h-64">
-              <Image
-                src={project.images[0]}
-                alt={project.alt}
-                fill
-                className="object-cover transition duration-500 group-hover:scale-105"
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-              />
-              <span className="absolute top-3 left-3 rounded-md border border-white/10 bg-black/80 px-2.5 py-1 text-[10px] tracking-wider text-zinc-300 uppercase">
+            <span className="relative grid h-52 place-items-center overflow-hidden bg-[#0c0c10] sm:h-60">
+              <span className="px-8 text-center">
+                <span
+                  className="mark-name font-brand block text-balance text-[1.65rem] leading-none font-semibold text-white sm:text-[2rem]"
+                  style={{ animationDelay: `${(index % 3) * 80}ms` }}
+                >
+                  {project.title}
+                </span>
+                <span
+                  className="mark-rule mx-auto mt-4 block h-px w-10 origin-center bg-red-600"
+                  style={{ animationDelay: `${180 + (index % 3) * 80}ms` }}
+                />
+                <span
+                  className="mark-arabic mt-3 block text-[11px] tracking-[0.32em] text-zinc-500"
+                  dir="rtl"
+                  style={{ animationDelay: `${320 + (index % 3) * 80}ms` }}
+                >
+                  {project.arabic}
+                </span>
+              </span>
+              <span className="absolute top-3 left-3 rounded-full border border-white/10 px-2.5 py-1 text-[10px] tracking-[0.18em] text-zinc-400 uppercase">
                 {sectors.find((item) => item.id === project.sector)?.label}
               </span>
-              <span className="absolute right-3 bottom-3 rounded-full bg-red-600 p-2.5 text-white opacity-0 transition group-hover:opacity-100">
+              <span className="absolute right-3 bottom-3 text-zinc-500 opacity-0 transition duration-300 group-hover:text-zinc-200 group-hover:opacity-100">
                 <ArrowUpRight className="h-4 w-4" />
               </span>
             </span>
-            <span className="flex flex-1 flex-col border-t border-zinc-900 bg-gradient-to-b from-[#0d0d11] to-[#070709] p-5">
-              <span className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+            <span className="flex flex-1 flex-col border-t border-zinc-900 bg-[#070709] p-5">
+              <span className="mb-1 flex items-center justify-between text-xs text-zinc-500">
                 <span>{project.needs.join(" · ")}</span>
-                <span className="font-bold text-red-500">{project.images.length} frames</span>
+                <span>{project.images.length} frames</span>
               </span>
-              <span className="font-brand text-xl font-bold text-white group-hover:text-red-500">{project.title}</span>
+              <span className="text-sm font-semibold tracking-wide text-zinc-200">{project.title}</span>
               <span className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
                 {reasons[project.slug] ?? project.solution}
               </span>

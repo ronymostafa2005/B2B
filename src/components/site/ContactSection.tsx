@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { agency } from "@/lib/content";
+import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/site/SocialIcons";
 import { sound } from "@/lib/sound";
 
 export function ContactSection() {
@@ -58,6 +59,24 @@ export function ContactSection() {
               <a href={agency.phoneHref} className="flex items-center gap-2 hover:text-white">
                 <Phone className="h-4 w-4 text-red-500" />
                 {agency.phone}
+              </a>
+            </li>
+            <li>
+              <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
+                <WhatsAppIcon className="h-4 w-4 text-red-500" />
+                {agency.whatsapp}
+              </a>
+            </li>
+            <li>
+              <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
+                <FacebookIcon className="h-4 w-4 text-red-500" />
+                Facebook
+              </a>
+            </li>
+            <li>
+              <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
+                <InstagramIcon className="h-4 w-4 text-red-500" />
+                Instagram
               </a>
             </li>
           </ul>

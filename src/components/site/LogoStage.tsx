@@ -46,13 +46,12 @@ export function LogoStage() {
               aria-label={mark.name}
               className="logo-card absolute top-1/2 left-1/2 flex h-28 w-40 items-center justify-center sm:h-36 sm:w-52"
               style={{
-                transform: `translate(-50%, -50%) translateX(${offset * 168}px) translateZ(${distance === 0 ? 80 : -40}px) rotateY(${offset * -32}deg) scale(${distance === 0 ? 1 : 0.82})`,
-                opacity: distance === 0 ? 1 : 0.72,
+                transform: `translate(-50%, -50%) translateX(${offset * 190}px) scale(${distance === 0 ? 1 : 0.9})`,
+                opacity: distance === 0 ? 1 : 0.8,
                 zIndex: 20 - distance,
-                filter: distance === 0 ? "none" : "saturate(0.85)",
               }}
             >
-              <img src={mark.src} alt="" className="max-h-[92px] max-w-[168px] object-contain sm:max-h-[112px] sm:max-w-[200px]" />
+              <img src={mark.src} alt="" width={240} height={140} className="h-auto max-h-[110px] w-auto max-w-[170px] object-contain sm:max-h-[128px] sm:max-w-[190px]" />
             </button>
           );
         })}

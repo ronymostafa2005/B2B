@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { About } from "@/components/site/About";
 import { ContactSection } from "@/components/site/ContactSection";
 import { DataStats } from "@/components/site/DataStats";
-import { EstimatorPanel } from "@/components/site/EstimatorPanel";
 import { Hero } from "@/components/site/Hero";
 import { PortfolioGrid } from "@/components/site/PortfolioGrid";
 import { ProjectModal } from "@/components/site/ProjectModal";
@@ -28,13 +27,12 @@ export function HomeStage() {
     <>
       <SiteIntro />
       <FlowRoot>
-        <Hero onSelectProject={open} />
+        <Hero />
         <ThreeShowcase onSelectProject={open} />
         <PortfolioGrid onSelectProject={open} />
         <DataStats />
         <Services />
         <StudioBoards />
-        <EstimatorPanel />
         <About />
         <ContactSection />
       </FlowRoot>

@@ -5,9 +5,13 @@ export const agency = {
   email: "bbagency@gmail.com",
   phone: "01020738348",
   phoneHref: "tel:+201020738348",
-  location: "Zagazig, Sharqia, Egypt",
+  whatsapp: "+20 10 20736348",
+  whatsappHref: "https://wa.me/201020736348",
+  facebook: "https://www.facebook.com/share/1DmzzWQXUU/",
+  instagram: "https://www.instagram.com/b2b_markting",
+  location: "Egypt",
   description:
-    "B2B. is the studio in Zagazig for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social.",
+    "B2B. is the studio for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social.",
   vision:
     "To be among the leading marketing and advertising companies in the Middle East, through creative work that uses innovation and current technology, and to be the first partner in a client's success.",
   mission:
@@ -22,7 +26,7 @@ export const whyUs = [
   "Integrated solutions",
   "Follow-up that continues",
   "Performance reports on a cycle",
-  "Competitive ranges",
+  "A scope set before the files",
 ] as const;
 
 export const logoClients = [
@@ -165,7 +169,6 @@ export const sectors = [
   { id: "education", label: "Education" },
   { id: "realestate", label: "Real estate" },
   { id: "places", label: "Places" },
-  { id: "occasion", label: "Occasions" },
 ] as const;
 
 export const needs = [
@@ -377,20 +380,6 @@ export const projects: Project[] = [
     keys: ["lux", "realty", "luxury", "فاخر", "عقار", "real estate", "property", "calm"],
   },
   {
-    slug: "ouzu-cafe",
-    title: "Ouzu Cafe",
-    arabic: "أوزو",
-    sector: "places",
-    needs: ["identity", "campaign"],
-    styles: ["calm", "modern"],
-    images: shots("ouzu-cafe", 2),
-    alt: "Ouzu Cafe packaging.",
-    problem: "The cafe needed the logo to survive on a box, not only on a screen.",
-    solution: "A mark for the pack, and a short film of the box in hand.",
-    keys: ["ouzu", "ouzo", "cafe", "كافيه", "قهوة", "coffee", "packaging", "تغليف", "logo", "هوية", "restaurant", "food"],
-    video: "/work/archive/ouzu-cafe/pack.mp4",
-  },
-  {
     slug: "horizon",
     title: "Horizon",
     arabic: "هورايزون",
@@ -441,84 +430,6 @@ export const projects: Project[] = [
     problem: "The feed needed a month of posts that still match.",
     solution: "A long social set with one structure and a changing subject.",
     keys: ["mas", "ماس", "social", "feed", "حملة", "brand", "retail"],
-  },
-  {
-    slug: "tiffany-mall",
-    title: "Tiffany Mall",
-    arabic: "تيفاني مول",
-    sector: "places",
-    needs: ["campaign", "social"],
-    styles: ["calm", "modern"],
-    images: shots("tiffany-mall", 3),
-    alt: "Tiffany Mall social posts.",
-    problem: "A mall post has one second to say where to go.",
-    solution: "Three frames with the offer up front and the mall mark in place.",
-    keys: ["tiffany", "mall", "مول", "تيفاني", "retail", "shopping", "social"],
-  },
-  {
-    slug: "october-6",
-    title: "6 October",
-    arabic: "٦ أكتوبر",
-    sector: "occasion",
-    needs: ["campaign", "social"],
-    styles: ["bold", "modern"],
-    images: shots("october-6", 6),
-    alt: "6 October 2026 campaign posts for partner brands.",
-    problem: "One national day, several brands, and no time for a new system each.",
-    solution: "A shared occasion language, then a frame tuned to each brand.",
-    keys: ["october", "اكتوبر", "أكتوبر", "6 october", "national", "عيد", "occasion", "مناسبة", "2026"],
-  },
-  {
-    slug: "july-23",
-    title: "23 July",
-    arabic: "٢٣ يوليو",
-    sector: "occasion",
-    needs: ["campaign", "social"],
-    styles: ["bold", "modern"],
-    images: shots("july-23", 6),
-    alt: "23 July 2026 occasion posts.",
-    problem: "The day arrives once, and a late post misses it.",
-    solution: "A prepared set so each brand can publish on the morning of the 23rd.",
-    keys: ["july", "يوليو", "23", "revolution", "occasion", "مناسبة", "عيد", "2026"],
-  },
-  {
-    slug: "june-30",
-    title: "30 June",
-    arabic: "٣٠ يونيو",
-    sector: "occasion",
-    needs: ["campaign", "social"],
-    styles: ["bold", "calm"],
-    images: shots("june-30", 6),
-    alt: "30 June 2026 occasion posts.",
-    problem: "The same day had to feel official without looking identical.",
-    solution: "One occasion, separate art for each brand on the roster.",
-    keys: ["june", "يونيو", "30", "occasion", "مناسبة", "national", "2026"],
-  },
-  {
-    slug: "eid-adha",
-    title: "Eid Al-Adha",
-    arabic: "عيد الأضحى",
-    sector: "occasion",
-    needs: ["campaign", "social"],
-    styles: ["calm", "bold"],
-    images: shots("eid-adha", 6),
-    alt: "Eid Al-Adha greeting campaigns.",
-    problem: "An Eid greeting is easy to ignore if it looks like every other greeting.",
-    solution: "Calligraphy for the wish, and the product still visible in the same frame.",
-    keys: ["eid", "adha", "اضحى", "أضحى", "عيد", "greeting", "تهنئة", "ramadan", "occasion", "مناسبة"],
-  },
-  {
-    slug: "world-cup",
-    title: "World Cup 2026",
-    arabic: "كأس العالم ٢٠٢٦",
-    sector: "occasion",
-    needs: ["campaign", "social"],
-    styles: ["bold", "modern"],
-    images: shots("world-cup", 1),
-    alt: "World Cup 2026 campaign frame.",
-    problem: "Match week moves fast, and a generic football post does not carry the brand.",
-    solution: "A cup frame built so the brand stays in the picture when the match is on.",
-    keys: ["world cup", "cup", "كأس", "العالم", "football", "كرة", "2026", "fifa", "sport", "occasion"],
   },
 ];
 
@@ -594,11 +505,10 @@ export const chapters = [
 ] as const;
 
 export const prompts = [
-  "Bold Eid campaign for a car brand",
+  "Bold campaign for a car brand",
   "Calm school admissions",
   "Luxury tower launch",
-  "Cafe packaging and a logo",
-  "World Cup 2026",
+  "A restaurant identity",
 ] as const;
 
 export function getProject(slug: string) {

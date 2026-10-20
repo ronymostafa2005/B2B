@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { agency } from "@/lib/content";
 import { sound } from "@/lib/sound";
+import { WhatsAppIcon } from "@/components/site/SocialIcons";
 
 const links = [
   { href: "#showcase-3d", label: "3D Spatial" },
   { href: "#portfolio", label: "Portfolio" },
   { href: "#agency-data", label: "Data Impact" },
   { href: "#services", label: "Services" },
-  { href: "#estimator", label: "Estimator" },
   { href: "#about", label: "About" },
 ];
 
@@ -62,15 +63,14 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <a
-            href="#contact"
-            onClick={(event) => {
-              event.preventDefault();
-              go("#contact");
-            }}
+            href={agency.whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => sound.playClick()}
             className="hidden items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(229,9,20,0.4)] hover:bg-red-700 sm:flex"
           >
-            Start project
-            <ArrowRight className="h-3.5 w-3.5" />
+            <WhatsAppIcon className="h-3.5 w-3.5" />
+            WhatsApp
           </a>
           <button
             type="button"
@@ -103,15 +103,17 @@ export function Navbar() {
             </a>
           ))}
           <a
-            href="#contact"
-            onClick={(event) => {
-              event.preventDefault();
-              go("#contact");
+            href={agency.whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              sound.playClick();
+              setOpen(false);
             }}
             className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-xs font-bold text-white"
           >
-            Start project
-            <ArrowRight className="h-4 w-4" />
+            <WhatsAppIcon className="h-4 w-4" />
+            WhatsApp
           </a>
         </div>
       ) : null}

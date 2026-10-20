@@ -69,7 +69,7 @@ export function Services() {
           </ol>
 
           <article key={service.title} className="service-panel relative overflow-hidden rounded-[28px] border border-red-500/30 bg-[#10060a] lg:col-span-8">
-            <div className="pointer-events-none absolute -top-16 -right-10 font-brand text-[9rem] leading-none font-black text-white/5">
+            <div className="pointer-events-none absolute top-6 right-6 font-brand text-6xl leading-none font-black text-white/10 sm:top-8 sm:right-8 sm:text-7xl">
               {service.index}
             </div>
             <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-red-600/20 blur-3xl" />
