@@ -4,9 +4,9 @@
     "bodyFont": "Plus Jakarta Sans",
     "baseFontSize": 16,
     "headingScale": 1,
-    "primaryColor": "#E50914",
-    "primaryGlow": "#E5091466",
-    "backgroundColor": "#070709",
+    "primaryColor": "#059669",
+    "primaryGlow": "#05966966",
+    "backgroundColor": "#040906",
     "cardBackground": "#0c0c10",
     "textColor": "#F3F4F6"
   },

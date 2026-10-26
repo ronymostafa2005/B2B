@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const config = getSiteConfig();
+    const config = await getSiteConfig();
     return NextResponse.json(config);
   } catch (error) {
     console.error("Failed to load site config:", error);

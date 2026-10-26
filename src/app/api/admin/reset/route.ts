@@ -2,17 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 import { resetSiteConfig } from "@/lib/config-storage";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   if (!verifySessionToken(token)) {
-    return NextResponse.json({ error: "غير مصرح لك بالوصول." }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
   }
 
   try {
-    const config = resetSiteConfig();
-    return NextResponse.json({ success: true, config, message: "تمت استعادة الإعدادات الافتراضية بنجاح" });
+    const config = await resetSiteConfig();
+    return NextResponse.json({ success: true, config, message: "Settings restored to defaults successfully" });
   } catch (error) {
     console.error("Failed to reset config:", error);
-    return NextResponse.json({ error: "فشل استعادة الإعدادات الافتراضية" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to restore default settings" }, { status: 500 });
   }
 }

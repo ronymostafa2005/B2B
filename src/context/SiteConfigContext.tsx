@@ -157,8 +157,8 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600"></span>
             </span>
             <SlidersHorizontal className="h-4 w-4 text-red-500 transition group-hover:rotate-45" />
-            <span>لوحة تحكم العميل</span>
-            <span className="rounded-full bg-red-600/30 px-1.5 py-0.5 text-[10px] text-red-300">نشط</span>
+            <span>Client Dashboard</span>
+            <span className="rounded-full bg-red-600/30 px-1.5 py-0.5 text-[10px] text-red-300">Active</span>
           </Link>
         </div>
       )}
