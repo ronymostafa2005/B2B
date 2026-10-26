@@ -3,6 +3,7 @@
 import { BarChart3, Clock3, Gem, Layers3, Lightbulb, Mail, MapPin, MessagesSquare, Phone, Scale, Users } from "lucide-react";
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/site/SocialIcons";
 import { useSiteConfig } from "@/context/SiteConfigContext";
+import { SmartImage } from "@/components/SmartImage";
 
 const whyIcons = [Users, Lightbulb, Gem, Clock3, Layers3, MessagesSquare, BarChart3, Scale];
 
@@ -44,7 +45,14 @@ export function About() {
             <span className="text-xs font-bold text-red-500">STUDIO</span>
             <span className="h-2.5 w-2.5 rounded-full bg-red-600 shadow-[0_0_8px_#e50914]" />
           </div>
-          <img src={config.header.logoUrl || "/brand/wordmark.png"} alt="B2B. Marketing Agency" className="h-20 w-auto" />
+          <SmartImage
+            src={config.header.logoUrl || "/brand/wordmark.png"}
+            alt="B2B. Marketing Agency"
+            width={792}
+            height={398}
+            autoAxis="width"
+            className="h-20 w-auto"
+          />
           <ul className="mt-6 space-y-4 text-sm text-zinc-300">
             {agency.location && (
               <li className="flex items-start gap-3">

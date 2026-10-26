@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     if (!validateCredentials(email, password)) {
       return NextResponse.json(
-        { success: false, error: "بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة المرور الخاصة بالعميل." },
+        { success: false, error: "Incorrect sign-in details. Please check the client email and password." },
         { status: 401 }
       );
     }
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       success: true,
       token,
       email: email.trim().toLowerCase(),
-      message: "تم تسجيل الدخول بنجاح",
+      message: "Signed in successfully",
     });
 
     response.cookies.set({
@@ -46,6 +46,6 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Login API error:", error);
-    return NextResponse.json({ success: false, error: "حدث خطأ أثناء تسجيل الدخول" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "An error occurred while signing in" }, { status: 500 });
   }
 }

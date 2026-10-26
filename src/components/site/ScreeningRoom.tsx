@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SmartImage } from "@/components/SmartImage";
 
 type Film = {
   src: string;
@@ -68,9 +69,11 @@ export function ScreeningRoom({
                   on ? "border-red-500 bg-red-950/40" : "border-zinc-800 bg-[#0c0c10] hover:border-zinc-600"
                 }`}
               >
-                <img
+                <SmartImage
                   src={item.poster}
                   alt=""
+                  width={96}
+                  height={128}
                   className={`h-16 w-12 rounded-lg object-cover ${item.wide ? "w-20" : ""}`}
                 />
                 <span>

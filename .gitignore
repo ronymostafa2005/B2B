@@ -7,5 +7,16 @@ build
 next-env.d.ts
 tsconfig.tsbuildinfo
 tmp-*.jpg
+
+# Secrets
 .env*
 .env.local
+
+# Runtime site config written by the admin dashboard
+data/site-config.json
+
+# Dashboard media uploads
+public/uploads
+
+# Browser-automation scratch output
+.playwright-mcp

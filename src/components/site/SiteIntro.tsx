@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import { studioServices } from "@/lib/content";
 import { markIntroDone } from "@/components/site/Flow";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
+import { SmartImage } from "@/components/SmartImage";
 
 type Phase = "logo" | "services" | "leave" | "done";
 
 export function SiteIntro() {
   const [phase, setPhase] = useState<Phase>("logo");
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setPhase("done");
+    // With reduced motion the intro is skipped entirely (see the early return
+    // below), so there is nothing to animate or lock.
+    if (reduceMotion) {
       markIntroDone();
       return;
     }
@@ -33,18 +36,22 @@ export function SiteIntro() {
       window.clearTimeout(done);
       document.body.style.overflow = previous;
     };
-  }, []);
+  }, [reduceMotion]);
 
-  if (phase === "done") return null;
+  if (reduceMotion || phase === "done") return null;
 
   const showServices = phase === "services" || phase === "leave";
 
   return (
     <div data-intro="" className={`fixed inset-0 z-[80] flex items-center justify-center bg-black ${phase === "leave" ? "intro-leave" : ""}`}>
       <div className={`flex w-[min(92vw,640px)] flex-col items-center ${showServices ? "intro-lockup" : ""}`}>
-        <img
+        <SmartImage
           src="/brand/wordmark.png"
           alt="B2B. Marketing Agency"
+          width={792}
+          height={398}
+          autoAxis="height"
+          priority
           className={`intro-logo h-auto object-contain ${showServices ? "w-[min(46vw,220px)]" : "w-[min(78vw,460px)]"}`}
         />
         {showServices ? (

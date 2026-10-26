@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { sound } from "@/lib/sound";
 import { WhatsAppIcon } from "@/components/site/SocialIcons";
 import { useSiteConfig } from "@/context/SiteConfigContext";
+import { SmartImage } from "@/components/SmartImage";
 
 export function Navbar() {
   const { config } = useSiteConfig();
@@ -38,9 +39,13 @@ export function Navbar() {
           }}
           className="group flex items-center"
         >
-          <img
+          <SmartImage
             src={logoUrl}
             alt={logoAlt}
+            width={792}
+            height={398}
+            autoAxis="width"
+            priority
             className="h-10 w-auto transition-transform group-hover:scale-105 sm:h-12"
           />
         </a>

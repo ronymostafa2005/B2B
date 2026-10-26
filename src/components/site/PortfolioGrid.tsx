@@ -10,7 +10,12 @@ import { useSiteConfig } from "@/context/SiteConfigContext";
 export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: Project) => void }) {
   const { config } = useSiteConfig();
   const portfolioSection = config.sections.portfolio;
-  const allProjects = (config.projects as unknown as Project[]) || [];
+  // Memoised so the `|| []` fallback does not produce a fresh array on every
+  // render, which would defeat the filtering memo below.
+  const allProjects = useMemo(
+    () => (config.projects as unknown as Project[]) || [],
+    [config.projects]
+  );
 
   const [sector, setSector] = useState<SectorId>("all");
   const [tone, setTone] = useState<StyleFilter>("all");
