@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles, KeyRound } from "lucide-react";
 import Link from "next/link";
+import { SmartImage } from "@/components/SmartImage";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -34,8 +35,10 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Success: redirect cleanly to dashboard
-      window.location.href = "/admin";
+      // Success: refresh so the new session cookie is picked up server-side,
+      // then move to the dashboard.
+      router.replace("/admin");
+      router.refresh();
     } catch {
       setError("A connection error occurred. Please try again.");
       setLoading(false);
@@ -59,7 +62,15 @@ export default function AdminLoginPage() {
         {/* Brand Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block transition-transform hover:scale-105">
-            <img src="/brand/wordmark.png" alt="B2B." className="h-14 w-auto mx-auto drop-shadow-[0_0_25px_rgba(229,9,20,0.5)]" />
+            <SmartImage
+              src="/brand/wordmark.png"
+              alt="B2B."
+              width={792}
+              height={398}
+              autoAxis="width"
+              priority
+              className="h-14 w-auto mx-auto drop-shadow-[0_0_25px_rgba(229,9,20,0.5)]"
+            />
           </Link>
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3.5 py-1 text-xs text-red-400 backdrop-blur-md">
             <ShieldCheck className="h-3.5 w-3.5 text-red-500" />

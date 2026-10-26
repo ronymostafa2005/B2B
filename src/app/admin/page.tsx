@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { verifySessionToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/config-storage";
 import { AdminDashboardClient } from "@/components/admin/AdminDashboardClient";
+import { adminFontVars } from "./fonts";
+import "./admin.css";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +19,9 @@ export default async function AdminPage() {
 
   const config = await getSiteConfig();
 
-  return <AdminDashboardClient initialConfig={config} userEmail={session.email} />;
+  return (
+    <div className={adminFontVars}>
+      <AdminDashboardClient initialConfig={config} userEmail={session.email} />
+    </div>
+  );
 }

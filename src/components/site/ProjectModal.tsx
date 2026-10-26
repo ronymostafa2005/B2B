@@ -8,9 +8,14 @@ import { sectors, type Project } from "@/lib/content";
 export function ProjectModal({ project, onClose }: { project: Project | null; onClose: () => void }) {
   const [index, setIndex] = useState(0);
 
-  useEffect(() => {
+  // Reset the carousel when a different project is opened. Adjusting state
+  // during render avoids rendering the new project at the old image index for
+  // one frame, which an effect would do.
+  const [shownSlug, setShownSlug] = useState(project?.slug);
+  if (project?.slug !== shownSlug) {
+    setShownSlug(project?.slug);
     setIndex(0);
-  }, [project?.slug]);
+  }
 
   useEffect(() => {
     if (!project) return;

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getProject, reel } from "@/lib/content";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 type Read = {
   id: string;
@@ -109,31 +110,41 @@ const reads: Record<(typeof reel)[number]["slug"], Read[]> = {
 };
 
 export function Frame() {
+  const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [readId, setReadId] = useState(reads[reel[0].slug][0].id);
   const [lens, setLens] = useState<{ x: number; y: number } | null>(null);
-  const [spoken, setSpoken] = useState("");
+  const [cursor, setCursor] = useState(0);
   const slide = reel[index];
   const project = getProject(slide.slug);
   const notes = reads[slide.slug];
   const note = notes.find((item) => item.id === readId) ?? notes[0];
   const point = lens ?? { x: note.x / 100, y: note.y / 100 };
 
+  // Restart the typewriter whenever the line changes. Adjusting state during
+  // render keeps the effect free of synchronous setState calls.
+  const [typedLine, setTypedLine] = useState(note.line);
+  if (typedLine !== note.line) {
+    setTypedLine(note.line);
+    setCursor(0);
+  }
+
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setSpoken(note.line);
-      return;
-    }
-    let cursor = 0;
-    setSpoken("");
+    if (reduceMotion) return;
     const timer = window.setInterval(() => {
-      cursor += 1;
-      setSpoken(note.line.slice(0, cursor));
-      if (cursor >= note.line.length) window.clearInterval(timer);
+      setCursor((current) => {
+        if (current >= note.line.length) {
+          window.clearInterval(timer);
+          return current;
+        }
+        return current + 1;
+      });
     }, 16);
     return () => window.clearInterval(timer);
-  }, [note.line]);
+  }, [note.line, reduceMotion]);
+
+  // With reduced motion the line is shown complete instead of typed out.
+  const spokenLine = reduceMotion ? note.line : note.line.slice(0, cursor);
 
   return (
     <section className="section" id="frame">
@@ -179,7 +190,7 @@ export function Frame() {
                 <span className="ar">{slide.arabic}</span>
               </p>
               <p className="director-line" aria-live="polite">
-                {spoken}
+                {spokenLine}
               </p>
             </div>
           </div>

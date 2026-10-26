@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { ChevronDown, ChevronUp, Eye, Layers, RotateCw, Volume2, VolumeX } from "lucide-react";
 import { projects, type Project } from "@/lib/content";
 import { sound } from "@/lib/sound";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 const _raycaster = new THREE.Raycaster();
 const _mouse = new THREE.Vector2();
@@ -37,6 +38,9 @@ const orbit = [
 export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: Project) => void }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const reduceMotion = useReducedMotion();
+  // Reduced motion disables auto-rotation, so reflect that in the control.
+  const autoRotating = isAutoRotating && !reduceMotion;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [hoveredTitle, setHoveredTitle] = useState<string | null>(null);
   const [soundOn, setSoundOn] = useState(false);
@@ -64,10 +68,8 @@ export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: 
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
+    if (reduceMotion) {
       stateRef.current.autoRotate = false;
-      setIsAutoRotating(false);
     }
 
     const scene = new THREE.Scene();
@@ -237,10 +239,11 @@ export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: 
     container.addEventListener("click", onClick);
     window.addEventListener("resize", resize);
 
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
     let frame = 0;
     const animate = () => {
-      const delta = clock.getDelta();
+      timer.update();
+      const delta = timer.getDelta();
       state.currentRotY = THREE.MathUtils.damp(state.currentRotY, state.targetRotY, 4.5, delta);
       state.currentRotX = THREE.MathUtils.damp(state.currentRotX, state.targetRotX, 4.5, delta);
       if (state.autoRotate && !state.isMouseDown) state.targetRotY += 0.22 * delta;
@@ -254,6 +257,7 @@ export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: 
 
     return () => {
       cancelAnimationFrame(frame);
+      timer.dispose();
       container.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
@@ -272,7 +276,7 @@ export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: 
       });
       renderer.dispose();
     };
-  }, [onSelectProject]);
+  }, [onSelectProject, reduceMotion]);
 
   return (
     <section
@@ -311,10 +315,10 @@ export function ThreeShowcase({ onSelectProject }: { onSelectProject: (project: 
               sound.playClick();
             }}
             className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium ${
-              isAutoRotating ? "border-red-500/60 bg-red-600/20 text-red-300" : "border-zinc-800 bg-black/70 text-zinc-400"
+              autoRotating ? "border-red-500/60 bg-red-600/20 text-red-300" : "border-zinc-800 bg-black/70 text-zinc-400"
             }`}
           >
-            <RotateCw className={`h-3.5 w-3.5 ${isAutoRotating ? "animate-spin" : ""}`} style={{ animationDuration: "6s" }} />
+            <RotateCw className={`h-3.5 w-3.5 ${autoRotating ? "animate-spin" : ""}`} style={{ animationDuration: "6s" }} />
             <span className="hidden md:inline">Auto rotate</span>
           </button>
         </div>

@@ -1,7 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { SmartImage } from "@/components/SmartImage";
+import { adminFontVars } from "@/app/admin/fonts";
 import {
   Type,
   Layout,
@@ -20,33 +24,49 @@ import {
   Copy,
   Palette,
   Sparkles,
-  ShieldCheck,
   Search,
   X,
   Download,
   CheckCircle2,
   AlertCircle,
+  ImageOff,
+  FileJson,
+  Undo2,
 } from "lucide-react";
-import type { SiteConfig, ProjectConfig, ServiceItemConfig, ClientMarkConfig } from "@/types/config";
+import type { SiteConfig, ProjectConfig, ClientMarkConfig } from "@/types/config";
+import {
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Kbd,
+  Panel,
+  PanelHead,
+  Select,
+  Tag,
+  TabHead,
+  TextArea,
+  Toggle,
+} from "./ui";
 
 const BRAND_FONTS = [
-  { id: "Playfair Display", name: "Playfair Display (Classic Elegant - Default)", sample: "B2B. Creative Studio" },
-  { id: "Cairo", name: "Cairo (Arabic / Premium Bilingual)", sample: "B2B Creative Studio" },
-  { id: "Tajawal", name: "Tajawal (Modern Balanced)", sample: "Visual Identity & Exceptional Ads" },
-  { id: "Almarai", name: "Almarai (Elegant & Smooth)", sample: "Work That Makes a Difference for Brands" },
-  { id: "Outfit", name: "Outfit (Ultra Modern Digital)", sample: "High Impact Modern Studio" },
-  { id: "Montserrat", name: "Montserrat (Strong Geometric)", sample: "Bold Geometric Presence" },
-  { id: "Syne", name: "Syne (Bold Creative)", sample: "Avant-Garde Studio" },
-  { id: "Amiri", name: "Amiri (Classic Arabic Serif)", sample: "Authentic Creativity & Inspiring Content" },
+  { id: "Playfair Display", name: "Playfair Display — classic, elegant (default)" },
+  { id: "Cairo", name: "Cairo — premium bilingual" },
+  { id: "Tajawal", name: "Tajawal — modern, balanced" },
+  { id: "Almarai", name: "Almarai — elegant, smooth" },
+  { id: "Outfit", name: "Outfit — ultra-modern digital" },
+  { id: "Montserrat", name: "Montserrat — strong geometric" },
+  { id: "Syne", name: "Syne — bold, creative" },
+  { id: "Amiri", name: "Amiri — classic Arabic serif" },
 ];
 
 const BODY_FONTS = [
-  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans (Universal Default)", sample: "Clean readable modern body text" },
-  { id: "Cairo", name: "Cairo (Excellent for Reading)", sample: "A complete and ideal font for reading body text and paragraphs" },
-  { id: "Almarai", name: "Almarai (Smooth & Fluid)", sample: "Effortlessly browse and read services" },
-  { id: "Tajawal", name: "Tajawal (Modern & Clear)", sample: "Clear, eye-friendly text on all screens" },
-  { id: "Inter", name: "Inter (Ultra Technical Standard)", sample: "Industry standard UI typography" },
-  { id: "Roboto", name: "Roboto (Practical & Versatile)", sample: "Practical and highly versatile font" },
+  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans — universal (default)" },
+  { id: "Cairo", name: "Cairo — excellent for reading" },
+  { id: "Almarai", name: "Almarai — smooth and fluid" },
+  { id: "Tajawal", name: "Tajawal — modern and clear" },
+  { id: "Inter", name: "Inter — technical standard" },
+  { id: "Roboto", name: "Roboto — practical, versatile" },
 ];
 
 const COLOR_PRESETS = [
@@ -58,27 +78,229 @@ const COLOR_PRESETS = [
   { name: "Crimson Rose", hex: "#E11D48", bg: "#090406" },
 ];
 
+const VIDEO_EXTENSIONS = [".mp4", ".mov", ".webm"];
+
+function isVideoUrl(url: string): boolean {
+  const clean = url.split("?")[0].toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => clean.endsWith(ext));
+}
+
+/** Expand #abc / #aabbcc into rgba(), for the accent tint variables. */
+function hexToRgba(hex: string, alpha: number): string {
+  let value = (hex || "").trim().replace("#", "");
+  if (value.length === 3) {
+    value = value
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
+  if (!/^[0-9a-fA-F]{6}$/.test(value)) return `rgba(229, 9, 20, ${alpha})`;
+  const int = parseInt(value, 16);
+  return `rgba(${(int >> 16) & 255}, ${(int >> 8) & 255}, ${int & 255}, ${alpha})`;
+}
+
+type TabId =
+  | "typography"
+  | "sections"
+  | "headerFooter"
+  | "hero"
+  | "projects"
+  | "services"
+  | "brandsReels"
+  | "agencyAbout"
+  | "media"
+  | "backup";
+
+/**
+ * Text input for a comma-separated list.
+ *
+ * Keeps the raw text the user is typing in local state, because parsing
+ * straight back into `value.join(", ")` on every keystroke swallows the comma
+ * the moment it is typed (`"a," -> ["a"] -> "a"`), making a second item
+ * impossible to enter. The parsed array is still committed on every change;
+ * the draft is dropped on blur so the field re-syncs to the canonical value.
+ */
+function CommaListInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string[];
+  onChange: (next: string[]) => void;
+  placeholder?: string;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  return (
+    <Input
+      value={draft ?? value.join(", ")}
+      placeholder={placeholder}
+      onChange={(e) => {
+        setDraft(e.target.value);
+        onChange(e.target.value.split(",").map((s) => s.trim()).filter(Boolean));
+      }}
+      onBlur={() => setDraft(null)}
+    />
+  );
+}
+
+/* Ten tabs grouped into four labelled clusters: a flat list of ten gives the
+   client no map of what the product actually contains. */
+const NAV_GROUPS: { label: string; items: { id: TabId; label: string; icon: typeof Type }[] }[] = [
+  {
+    label: "Appearance",
+    items: [{ id: "typography", label: "Fonts & Theme", icon: Type }],
+  },
+  {
+    label: "Structure",
+    items: [
+      { id: "sections", label: "Sections", icon: Layout },
+      { id: "headerFooter", label: "Header & Footer", icon: SlidersHorizontal },
+      { id: "hero", label: "Hero Stage", icon: Sparkles },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { id: "projects", label: "Projects", icon: FolderKanban },
+      { id: "services", label: "Services", icon: Wrench },
+      { id: "brandsReels", label: "Clients & Reels", icon: Film },
+      { id: "agencyAbout", label: "About & Contact", icon: Building },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { id: "media", label: "Media Library", icon: Upload },
+      { id: "backup", label: "Backup & Reset", icon: RotateCcw },
+    ],
+  },
+];
+
+/** The bundled brand wordmark, mirroring `defaultConfig`. Kept as a literal so
+ *  the admin bundle does not have to carry a second copy of the whole config. */
+const DEFAULT_LOGO = "/brand/wordmark.png";
+
+/**
+ * Logo picker with two separate ways back.
+ *
+ * "Undo change" returns to the last published value, for when an upload was a
+ * mistake. "Use original" returns to the bundled brand wordmark. They are
+ * different destinations, so both are offered rather than one ambiguous reset.
+ */
+function LogoField({
+  label,
+  hint,
+  value,
+  savedValue,
+  onChange,
+  onUpload,
+  previewHeight = "h-7",
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  savedValue: string;
+  onChange: (next: string) => void;
+  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  previewHeight?: string;
+}) {
+  const isDefault = value === DEFAULT_LOGO;
+  const isUnsaved = value !== savedValue;
+
+  return (
+    <Field label={label} hint={hint}>
+      <div className="flex gap-2">
+        <Input mono value={value} onChange={(e) => onChange(e.target.value)} dir="ltr" aria-label={label} />
+        <label className="ad-focusable inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px] border border-[var(--ad-line)] bg-[var(--ad-raised)] px-3 text-[12px] font-medium text-[var(--ad-ink)] transition hover:border-[var(--ad-line-strong)]">
+          <Upload className="h-3.5 w-3.5" />
+          Upload
+          <input type="file" accept="image/*" className="hidden" onChange={onUpload} />
+        </label>
+      </div>
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <Tag tone={isUnsaved ? "accent" : isDefault ? "muted" : "neutral"}>
+          {isUnsaved ? "Unsaved" : isDefault ? "Original" : "Custom"}
+        </Tag>
+
+        {isUnsaved && (
+          <button
+            type="button"
+            onClick={() => onChange(savedValue)}
+            className="ad-focusable inline-flex items-center gap-1 rounded-[6px] px-1.5 py-0.5 text-[11px] text-[var(--ad-ink-faint)] transition hover:text-[var(--ad-ink)]"
+          >
+            <Undo2 className="h-3 w-3" />
+            Undo change
+          </button>
+        )}
+
+        {!isDefault && (
+          <button
+            type="button"
+            onClick={() => onChange(DEFAULT_LOGO)}
+            className="ad-focusable inline-flex items-center gap-1 rounded-[6px] px-1.5 py-0.5 text-[11px] text-[var(--ad-ink-faint)] transition hover:text-[var(--ad-ink)]"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Use original
+          </button>
+        )}
+      </div>
+
+      {value && (
+        <div className="mt-2.5 inline-block rounded-[8px] border border-[var(--ad-line-soft)] bg-[var(--ad-void)] px-3 py-2">
+          <SmartImage
+            src={value}
+            alt={`${label} preview`}
+            width={792}
+            height={398}
+            autoAxis="width"
+            className={`${previewHeight} w-auto`}
+          />
+        </div>
+      )}
+    </Field>
+  );
+}
+
 interface Props {
   initialConfig: SiteConfig;
   userEmail: string;
 }
 
 export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
+  const router = useRouter();
   const [config, setConfig] = useState<SiteConfig>(initialConfig);
-  const [activeTab, setActiveTab] = useState<
-    "typography" | "sections" | "headerFooter" | "hero" | "projects" | "services" | "brandsReels" | "agencyAbout" | "media" | "backup"
-  >("typography");
+  /* The last state known to be on disk. Everything about "unsaved changes" is
+     derived by comparing against this. */
+  const [savedConfig, setSavedConfig] = useState<SiteConfig>(initialConfig);
+  const [activeTab, setActiveTab] = useState<TabId>("typography");
 
-  // Notifications
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ url: string; name: string }[]>([]);
   const [uploading, setUploading] = useState(false);
 
-  // Project search & modal
   const [projectSearch, setProjectSearch] = useState("");
   const [selectedProject, setSelectedProject] = useState<ProjectConfig | null>(null);
+  // The slug the project had when the modal was opened. The slug itself is
+  // editable, so this is what we match on when writing the edit back.
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [isEditingProject, setIsEditingProject] = useState(false);
+
+  const isDirty = useMemo(
+    () => JSON.stringify(config) !== JSON.stringify(savedConfig),
+    [config, savedConfig]
+  );
+
+  /* The dashboard wears the brand it is editing: the accent is read live from
+     the client's own saved colour rather than hard-coded. */
+  const accent = config.typography?.primaryColor || "#E50914";
+  const accentVars = {
+    "--ad-accent": accent,
+    "--ad-accent-soft": hexToRgba(accent, 0.14),
+    "--ad-accent-line": hexToRgba(accent, 0.42),
+  } as React.CSSProperties;
 
   const notify = (type: "success" | "error", text: string) => {
     setStatusMessage({ type, text });
@@ -87,6 +309,8 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
     }, 4500);
   };
 
+  /* Publishes a save to any other open tab, so the public site refreshes
+     without a manual reload. */
   const notifySiteTabs = () => {
     try {
       if (typeof window !== "undefined") {
@@ -102,7 +326,34 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
     }
   };
 
-  const handleSave = async () => {
+  const openProjectEditor = (project: ProjectConfig) => {
+    setSelectedProject(project);
+    setEditingSlug(project.slug);
+    setIsEditingProject(true);
+  };
+
+  const closeProjectEditor = useCallback(() => {
+    setIsEditingProject(false);
+    setSelectedProject(null);
+    setEditingSlug(null);
+  }, []);
+
+  // Keep the page behind the editor still, and let Escape close it.
+  useEffect(() => {
+    if (!isEditingProject) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeProjectEditor();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isEditingProject, closeProjectEditor]);
+
+  const handleSave = useCallback(async () => {
     setSaving(true);
     try {
       const res = await fetch("/api/admin/config", {
@@ -116,18 +367,45 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
         notify("error", data.error || "Failed to save changes");
       } else {
         setConfig(data.config);
+        setSavedConfig(data.config);
+        // The layout renders from the saved config, so refresh the server
+        // components to match what was just written.
+        router.refresh();
         notifySiteTabs();
-        notify("success", "All changes saved! Site updated and refreshed across all tabs.");
+        notify("success", "All changes saved — the live site is updated.");
       }
     } catch {
       notify("error", "A server error occurred while saving changes");
     } finally {
       setSaving(false);
     }
-  };
+  }, [config, router]);
+
+  /* Save on Cmd/Ctrl+S, and warn before leaving with unsaved edits — without
+     this a long editing session is lost to a stray tab close. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (isDirty && !saving) void handleSave();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isDirty, saving, handleSave]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isDirty]);
 
   const handleReset = async () => {
-    if (!window.confirm("Are you sure you want to restore the original default settings for this portfolio?")) {
+    if (!window.confirm("Restore the original default settings for this portfolio?")) {
       return;
     }
     setSaving(true);
@@ -136,10 +414,12 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
       const data = await res.json();
       if (res.ok && data.success) {
         setConfig(data.config);
+        setSavedConfig(data.config);
+        router.refresh();
         notifySiteTabs();
-        notify("success", "Original settings have been restored successfully");
+        notify("success", "Original settings have been restored");
       } else {
-        notify("error", "Restore operation failed");
+        notify("error", data.error || "Restore operation failed");
       }
     } catch {
       notify("error", "Server error during restore");
@@ -149,8 +429,45 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
   };
 
   const handleLogout = async () => {
+    if (isDirty && !window.confirm("You have unsaved changes. Log out and discard them?")) {
+      return;
+    }
     await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/admin/login";
+    // Refresh so the server re-reads the (now cleared) session cookie.
+    router.replace("/admin/login");
+    router.refresh();
+  };
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text());
+
+      // Only accept something that actually looks like a site config, so a
+      // wrong file can't wipe the dashboard into a blank state.
+      const required = ["typography", "header", "sections", "agency", "footer"];
+      const missing = required.filter((key) => !parsed || typeof parsed[key] !== "object");
+      if (missing.length > 0) {
+        notify("error", `Not a valid backup file (missing: ${missing.join(", ")})`);
+        return;
+      }
+
+      if (
+        !window.confirm(
+          "Replace all current settings with this backup? Nothing is published until you press Save."
+        )
+      ) {
+        return;
+      }
+
+      setConfig((prev) => ({ ...prev, ...parsed }));
+      notify("success", "Backup loaded — review it, then press Save changes");
+    } catch {
+      notify("error", "Could not read that file. Please choose a valid JSON backup.");
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, callback?: (url: string) => void) => {
@@ -205,8 +522,7 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
       sections: {
         ...prev.sections,
         [sec]: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ...(prev.sections[sec] as any),
+          ...prev.sections[sec],
           [key]: value,
         },
       },
@@ -227,61 +543,102 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
     }));
   };
 
+  const filteredProjects = useMemo(() => {
+    const q = projectSearch.trim().toLowerCase();
+    if (!q) return config.projects;
+    return config.projects.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.arabic.includes(projectSearch.trim()) ||
+        p.sector.toLowerCase().includes(q)
+    );
+  }, [config.projects, projectSearch]);
+
+  const counts: Partial<Record<TabId, number>> = {
+    projects: config.projects.length,
+    services: config.studioServices.length,
+    brandsReels: config.marks.length,
+  };
+
   return (
-    <div className="min-h-screen bg-[#070709] text-zinc-100 flex flex-col selection:bg-red-600 selection:text-white">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#070709]/95 backdrop-blur-xl px-4 py-3 sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          {/* Logo & Client Verification Badge */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Link href="/" target="_blank" className="transition hover:opacity-90">
-              <img src={config.header.logoUrl || "/brand/wordmark.png"} alt="B2B." className="h-9 w-auto" />
+    <div className="ad-root ad-atmos min-h-screen" style={accentVars}>
+      {/* ----------------------------- Top bar ----------------------------- */}
+      <header className="sticky top-0 z-40 border-b border-[var(--ad-line)] bg-[var(--ad-base)]/88 backdrop-blur-xl">
+        <div className="mx-auto flex h-[60px] max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <Link href="/" target="_blank" className="ad-focusable shrink-0 transition hover:opacity-80">
+              <SmartImage
+                src={config.header.logoUrl || "/brand/wordmark.png"}
+                alt="B2B."
+                width={792}
+                height={398}
+                autoAxis="width"
+                priority
+                className="h-7 w-auto"
+              />
             </Link>
-            <div className="h-6 w-px bg-zinc-800" />
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm sm:text-base text-white font-brand">Portfolio Dashboard</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-950/60 border border-red-500/40 px-2 py-0.5 text-[10px] font-bold text-red-400">
-                  <ShieldCheck className="h-3 w-3 text-red-500" />
-                  Verified Client
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-400 font-mono" dir="ltr">
+            <span className="h-7 w-px bg-[var(--ad-line)]" />
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-semibold leading-tight text-[var(--ad-ink)]">
+                Portfolio Control
+              </p>
+              <p className="ad-mono truncate text-[10.5px] leading-tight text-[var(--ad-ink-faint)]" dir="ltr">
                 {userEmail}
               </p>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Live save state, so the client can always tell whether the site
+                reflects what is on screen. */}
+            <span className="hidden items-center gap-1.5 pr-1 md:inline-flex">
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${isDirty ? "ad-pulse" : ""}`}
+                style={{ background: isDirty ? "var(--ad-warn)" : "var(--ad-ok)" }}
+              />
+              <span className="ad-mono text-[10px] uppercase tracking-[0.1em] text-[var(--ad-ink-faint)]">
+                {isDirty ? "Unsaved" : "Published"}
+              </span>
+            </span>
+
             <Link
               href="/"
               target="_blank"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/80 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-700 hover:text-white transition"
+              className="ad-focusable hidden items-center gap-1.5 rounded-[10px] border border-[var(--ad-line)] bg-[var(--ad-raised)] px-3 py-2 text-[12px] font-medium text-[var(--ad-ink-dim)] transition hover:border-[var(--ad-line-strong)] hover:text-[var(--ad-ink)] sm:inline-flex"
             >
-              <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
-              <span>Live Preview</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+              View site
             </Link>
 
-            <button
-              type="button"
+            <Button
+              variant="primary"
               onClick={handleSave}
-              disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-2 text-xs font-bold text-white shadow-[0_0_20px_rgba(229,9,20,0.5)] hover:from-red-500 hover:to-red-600 transition disabled:opacity-50 cursor-pointer"
+              disabled={saving || !isDirty}
+              icon={saving ? undefined : Save}
             >
               {saving ? (
-                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <>
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  <span className="whitespace-nowrap">Saving</span>
+                </>
               ) : (
-                <Save className="h-3.5 w-3.5" />
+                <>
+                  <span className="whitespace-nowrap">
+                    Save<span className="hidden sm:inline"> changes</span>
+                  </span>
+                  <span className="ml-1 hidden lg:inline">
+                    <Kbd>⌘S</Kbd>
+                  </span>
+                </>
               )}
-              <span>Save All Changes</span>
-            </button>
+            </Button>
 
             <button
               type="button"
               onClick={handleLogout}
-              title="Log Out"
-              className="rounded-xl border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 hover:border-red-900/50 hover:bg-red-950/40 hover:text-red-400 transition cursor-pointer"
+              title="Log out"
+              aria-label="Log out"
+              className="ad-focusable rounded-[10px] border border-[var(--ad-line)] bg-[var(--ad-raised)] p-2 text-[var(--ad-ink-faint)] transition hover:border-[var(--ad-line-strong)] hover:text-[var(--ad-ink)]"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -289,440 +646,363 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
         </div>
       </header>
 
-      {/* Toast Alert */}
-      {statusMessage && (
-        <div
-          className={`fixed top-18 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 rounded-2xl border px-5 py-3 text-xs font-bold shadow-2xl backdrop-blur-xl animate-fade-in ${
-            statusMessage.type === "success"
-              ? "border-green-500/60 bg-green-950/90 text-green-200 shadow-[0_0_30px_rgba(34,197,94,0.3)]"
-              : "border-red-500/60 bg-red-950/90 text-red-200 shadow-[0_0_30px_rgba(229,9,20,0.3)]"
-          }`}
-        >
-          {statusMessage.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
-          ) : (
-            <AlertCircle className="h-4 w-4 text-red-400 shrink-0" />
-          )}
-          <span>{statusMessage.text}</span>
-        </div>
-      )}
-
-      {/* Main Body */}
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:flex-row">
-        {/* Navigation Sidebar Tabs */}
-        <aside className="w-full shrink-0 lg:w-64">
-          <div className="sticky top-20 flex flex-row lg:flex-col gap-1.5 overflow-x-auto rounded-3xl border border-zinc-800/80 bg-[#0c0c12]/90 p-2.5 backdrop-blur-xl">
-            {[
-              { id: "typography", label: "Fonts & Theme", icon: Type, badge: "Global" },
-              { id: "sections", label: "Sections & Visibility", icon: Layout, badge: "8 sections" },
-              { id: "headerFooter", label: "Header & Footer", icon: SlidersHorizontal },
-              { id: "hero", label: "Hero Section", icon: Sparkles },
-              { id: "projects", label: "Projects & Work", icon: FolderKanban, badge: `${config.projects.length}` },
-              { id: "services", label: "Services & Deliverables", icon: Wrench, badge: `${config.studioServices.length}` },
-              { id: "brandsReels", label: "Clients & Reels", icon: Film },
-              { id: "agencyAbout", label: "About & Contact", icon: Building },
-              { id: "media", label: "Media Library", icon: Upload },
-              { id: "backup", label: "Backup & Reset", icon: RotateCcw },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const active = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex min-w-max items-center justify-between gap-3 rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition cursor-pointer text-left ${
-                    active
-                      ? "bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.5)] font-bold"
-                      : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`h-4 w-4 ${active ? "text-white" : "text-zinc-500"}`} />
-                    <span>{tab.label}</span>
-                  </div>
-                  {tab.badge && (
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] ${
-                        active ? "bg-black/30 text-white" : "bg-zinc-800 text-zinc-400"
-                      }`}
-                    >
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+      <div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8">
+        {/* --------------------------- Nav rail --------------------------- */}
+        <aside className="w-full shrink-0 lg:w-[232px]">
+          <nav
+            aria-label="Dashboard sections"
+            className="ad-scroll sticky top-[76px] -mx-1 flex gap-5 overflow-x-auto px-1 pb-2 lg:mx-0 lg:block lg:space-y-5 lg:overflow-visible lg:px-0 lg:pb-0"
+          >
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label} className="shrink-0">
+                <p className="ad-micro mb-1.5 hidden px-3 lg:block">{group.label}</p>
+                <div className="flex gap-1 lg:block lg:space-y-0.5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = activeTab === item.id;
+                    const count = counts[item.id];
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        data-active={active}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setActiveTab(item.id)}
+                        className="ad-nav-item ad-focusable shrink-0 whitespace-nowrap"
+                      >
+                        <Icon
+                          className="h-[15px] w-[15px] shrink-0"
+                          style={{ color: active ? "var(--ad-accent)" : "var(--ad-ink-ghost)" }}
+                        />
+                        <span className="flex-1 text-[12.5px] font-medium">{item.label}</span>
+                        {count !== undefined && (
+                          <span className="ad-mono text-[10px] text-[var(--ad-ink-ghost)]">{count}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
         </aside>
 
-        {/* Tab Content Panel */}
-        <main className="flex-1 min-w-0">
-          <div className="rounded-3xl border border-zinc-800/80 bg-[#0c0c12]/90 p-5 sm:p-8 backdrop-blur-xl shadow-xl">
-            {/* ----------------- TAB 1: TYPOGRAPHY & THEME ----------------- */}
-            {activeTab === "typography" && (
-              <div className="space-y-8 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Type className="h-3.5 w-3.5 text-red-500" />
-                    <span>Control font types, sizes & overall appearance</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Fonts, Sizes & Global Theme</h2>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    Change the heading font, body font, base size, and heading scale — the entire portfolio updates instantly.
-                  </p>
-                </div>
+        {/* ------------------------- Work surface ------------------------- */}
+        <main className="min-w-0 flex-1 pb-20">
+          {/* ---------------- TAB 1: TYPOGRAPHY & THEME ---------------- */}
+          {activeTab === "typography" && (
+            <div key="typography" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Appearance"
+                title="Fonts, scale & brand colour"
+                lede="Set the heading and body typefaces, the base reading size, and the brand palette. Every page of the portfolio follows these."
+              />
 
-                {/* Fonts Pickers */}
-                <div className="grid gap-6 sm:grid-cols-2">
-                  {/* Brand Font */}
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-4">
-                    <label className="block text-xs font-bold text-zinc-300">
-                      Heading & Brand Font
-                    </label>
-                    <select
+              <div className="grid gap-5 lg:grid-cols-2">
+                <Panel>
+                  <PanelHead title="Heading & brand typeface" icon={Type} caption="Titles and the wordmark" />
+                  <div className="space-y-4 p-5">
+                    <Select
                       value={config.typography.brandFont}
                       onChange={(e) => updateTypography("brandFont", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none"
+                      aria-label="Heading font"
                     >
                       {BRAND_FONTS.map((font) => (
                         <option key={font.id} value={font.id}>
                           {font.name}
                         </option>
                       ))}
-                    </select>
-                    <div className="rounded-xl border border-zinc-900 bg-black/60 p-3 text-center">
-                      <p className="text-[10px] text-zinc-500 mb-1">Live heading font preview:</p>
-                      <h3
-                        className="text-lg font-black text-white"
-                        style={{ fontFamily: `"${config.typography.brandFont}", serif` }}
-                      >
-                        B2B. Work That Holds The Frame
-                      </h3>
+                    </Select>
+                    <div className="rounded-[10px] border border-[var(--ad-line-soft)] bg-[var(--ad-void)] px-4 py-5">
+                      <p className="ad-micro mb-2.5">Preview</p>
                       <p
-                        className="text-sm font-bold text-red-500 mt-1"
+                        className="text-[22px] leading-tight text-[var(--ad-ink)]"
                         style={{ fontFamily: `"${config.typography.brandFont}", serif` }}
                       >
-                        Work That Makes a Difference for Brands
+                        Work that holds the frame
+                      </p>
+                      <p
+                        className="mt-1 text-[15px]"
+                        style={{ fontFamily: `"${config.typography.brandFont}", serif`, color: accent }}
+                      >
+                        Identity, campaigns & film
                       </p>
                     </div>
                   </div>
+                </Panel>
 
-                  {/* Body Font */}
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-4">
-                    <label className="block text-xs font-bold text-zinc-300">
-                      Body Text Font
-                    </label>
-                    <select
+                <Panel>
+                  <PanelHead title="Body typeface" icon={Type} caption="Paragraphs and interface text" />
+                  <div className="space-y-4 p-5">
+                    <Select
                       value={config.typography.bodyFont}
                       onChange={(e) => updateTypography("bodyFont", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none"
+                      aria-label="Body font"
                     >
                       {BODY_FONTS.map((font) => (
                         <option key={font.id} value={font.id}>
                           {font.name}
                         </option>
                       ))}
-                    </select>
-                    <div className="rounded-xl border border-zinc-900 bg-black/60 p-3 text-center">
-                      <p className="text-[10px] text-zinc-500 mb-1">Live body font preview:</p>
+                    </Select>
+                    <div className="rounded-[10px] border border-[var(--ad-line-soft)] bg-[var(--ad-void)] px-4 py-5">
+                      <p className="ad-micro mb-2.5">Preview</p>
                       <p
-                        className="text-xs text-zinc-300 leading-relaxed"
+                        className="text-[13px] leading-relaxed text-[var(--ad-ink-dim)]"
                         style={{ fontFamily: `"${config.typography.bodyFont}", sans-serif` }}
                       >
-                        B2B Studio — specialists in visual identity, advertising campaigns, and AI-powered solutions for leading projects across the Middle East.
+                        B2B. Studio — specialists in visual identity, advertising campaigns and
+                        AI-powered solutions for leading projects across the Middle East.
                       </p>
                     </div>
                   </div>
-                </div>
+                </Panel>
+              </div>
 
-                {/* Font Sizes & Scale Sliders */}
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-3">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-zinc-300">Base Font Size</span>
-                      <span className="font-mono text-red-400 font-bold">{config.typography.baseFontSize}px</span>
+              <Panel>
+                <PanelHead title="Reading scale" icon={SlidersHorizontal} caption="Base size and heading emphasis" />
+                <div className="grid gap-7 p-5 sm:grid-cols-2">
+                  <div>
+                    <div className="mb-3 flex items-baseline justify-between">
+                      <span className="text-[12px] font-medium text-[var(--ad-ink-dim)]">Base text size</span>
+                      <span className="ad-mono text-[12px]" style={{ color: accent }}>
+                        {config.typography.baseFontSize}px
+                      </span>
                     </div>
                     <input
                       type="range"
                       min="13"
                       max="22"
                       step="1"
+                      aria-label="Base font size"
                       value={config.typography.baseFontSize}
                       onChange={(e) => updateTypography("baseFontSize", Number(e.target.value))}
-                      className="w-full accent-red-600"
+                      className="ad-range"
                     />
-                    <div className="flex justify-between text-[10px] text-zinc-500">
-                      <span>Small (13px)</span>
-                      <span>Default (16px)</span>
-                      <span>Large (22px)</span>
+                    <div className="ad-mono mt-2 flex justify-between text-[9.5px] text-[var(--ad-ink-ghost)]">
+                      <span>13 — compact</span>
+                      <span>16 — default</span>
+                      <span>22 — large</span>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-3">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-zinc-300">Headings Scale</span>
-                      <span className="font-mono text-red-400 font-bold">×{config.typography.headingScale}</span>
+                  <div>
+                    <div className="mb-3 flex items-baseline justify-between">
+                      <span className="text-[12px] font-medium text-[var(--ad-ink-dim)]">Heading scale</span>
+                      <span className="ad-mono text-[12px]" style={{ color: accent }}>
+                        ×{config.typography.headingScale}
+                      </span>
                     </div>
                     <input
                       type="range"
                       min="0.8"
                       max="1.4"
                       step="0.05"
+                      aria-label="Heading scale"
                       value={config.typography.headingScale}
                       onChange={(e) => updateTypography("headingScale", Number(e.target.value))}
-                      className="w-full accent-red-600"
+                      className="ad-range"
                     />
-                    <div className="flex justify-between text-[10px] text-zinc-500">
-                      <span>Modest (0.8x)</span>
-                      <span>Standard (1.0x)</span>
-                      <span>Bold (1.4x)</span>
+                    <div className="ad-mono mt-2 flex justify-between text-[9.5px] text-[var(--ad-ink-ghost)]">
+                      <span>0.8 — modest</span>
+                      <span>1.0 — standard</span>
+                      <span>1.4 — bold</span>
                     </div>
                   </div>
                 </div>
+              </Panel>
 
-                {/* Color Palettes & Custom Colors */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-5">
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-red-500" />
-                    <span className="text-xs font-bold text-zinc-300">Brand Colors & Theme</span>
-                  </div>
-
-                  {/* Presets */}
+              <Panel>
+                <PanelHead title="Brand palette" icon={Palette} caption="One accent carries the whole site" />
+                <div className="space-y-6 p-5">
                   <div>
-                    <span className="text-[11px] text-zinc-400 block mb-2">Ready-made color presets — one click to apply:</span>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                      {COLOR_PRESETS.map((preset) => (
-                        <button
-                          key={preset.name}
-                          type="button"
-                          onClick={() => {
-                            updateTypography("primaryColor", preset.hex);
-                            updateTypography("primaryGlow", `${preset.hex}66`);
-                            updateTypography("backgroundColor", preset.bg);
-                          }}
-                          className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/80 p-2 text-left hover:border-zinc-700 transition cursor-pointer"
-                        >
-                          <span className="h-4 w-4 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: preset.hex }} />
-                          <span className="text-xs text-zinc-300 font-medium truncate">{preset.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Custom Pickers */}
-                  <div className="grid gap-4 sm:grid-cols-3 pt-2">
-                    <div>
-                      <label className="block text-[11px] text-zinc-400 mb-1.5">Primary Accent Color</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={config.typography.primaryColor}
-                          onChange={(e) => updateTypography("primaryColor", e.target.value)}
-                          className="h-9 w-9 rounded-lg border border-zinc-800 bg-zinc-900 cursor-pointer p-0.5"
-                        />
-                        <input
-                          type="text"
-                          value={config.typography.primaryColor}
-                          onChange={(e) => updateTypography("primaryColor", e.target.value)}
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white uppercase font-mono"
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] text-zinc-400 mb-1.5">Background Color</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={config.typography.backgroundColor}
-                          onChange={(e) => updateTypography("backgroundColor", e.target.value)}
-                          className="h-9 w-9 rounded-lg border border-zinc-800 bg-zinc-900 cursor-pointer p-0.5"
-                        />
-                        <input
-                          type="text"
-                          value={config.typography.backgroundColor}
-                          onChange={(e) => updateTypography("backgroundColor", e.target.value)}
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white uppercase font-mono"
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] text-zinc-400 mb-1.5">Primary Text Color</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={config.typography.textColor}
-                          onChange={(e) => updateTypography("textColor", e.target.value)}
-                          className="h-9 w-9 rounded-lg border border-zinc-800 bg-zinc-900 cursor-pointer p-0.5"
-                        />
-                        <input
-                          type="text"
-                          value={config.typography.textColor}
-                          onChange={(e) => updateTypography("textColor", e.target.value)}
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white uppercase font-mono"
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ----------------- TAB 2: SECTIONS CONTROLLER ----------------- */}
-            {activeTab === "sections" && (
-              <div className="space-y-8 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Layout className="h-3.5 w-3.5 text-red-500" />
-                    <span>Show, hide & rename site sections</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Full Portfolio Section Control</h2>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    Hide or show any section entirely, and edit the badge, main title, and description for each section.
-                  </p>
-                </div>
-
-                <div className="grid gap-4">
-                  {[
-                    { key: "hero", label: "1. Hero Stage", desc: "Main headline, logo & animated keywords" },
-                    { key: "showroom3d", label: "2. Interactive 3D Showroom", desc: "Display projects in a three-dimensional space" },
-                    { key: "portfolio", label: "3. Portfolio Archive & Filter", desc: "Full archive with sector and style categories" },
-                    { key: "dataStats", label: "4. Data & KPI Stats", desc: "Years of work, projects delivered & sector ratios" },
-                    { key: "services", label: "5. Services & Deliverables", desc: "Four service packages and their deliverables" },
-                    { key: "studioBoards", label: "6. Client Logos & House Reel", desc: "Partner logo strip and production & social videos" },
-                    { key: "about", label: "7. About B2B. & Why Us", desc: "Vision, mission & 8 studio differentiators" },
-                    { key: "contact", label: "8. Contact Form & 15-min Consult", desc: "Direct brief form and cost estimator" },
-                  ].map((sec) => {
-                    const secData = config.sections[sec.key as keyof SiteConfig["sections"]];
-                    return (
-                      <div
-                        key={sec.key}
-                        className={`rounded-2xl border p-5 transition ${
-                          secData.visible
-                            ? "border-zinc-800 bg-zinc-950/80"
-                            : "border-red-950/40 bg-black/40 opacity-70"
-                        }`}
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-900">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-bold text-white">{sec.label}</h3>
-                              <span
-                                className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                  secData.visible ? "bg-green-950 border border-green-500/40 text-green-400" : "bg-zinc-800 text-zinc-500"
-                                }`}
-                              >
-                                {secData.visible ? "Active" : "Hidden"}
+                    <p className="ad-micro mb-2.5">Presets</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {COLOR_PRESETS.map((preset) => {
+                        const selected =
+                          config.typography.primaryColor.toLowerCase() === preset.hex.toLowerCase();
+                        return (
+                          <button
+                            key={preset.name}
+                            type="button"
+                            onClick={() => {
+                              updateTypography("primaryColor", preset.hex);
+                              updateTypography("primaryGlow", `${preset.hex}66`);
+                              updateTypography("backgroundColor", preset.bg);
+                            }}
+                            aria-pressed={selected}
+                            className="ad-focusable flex items-center gap-2.5 rounded-[10px] border px-2.5 py-2 text-left transition"
+                            style={{
+                              borderColor: selected ? preset.hex : "var(--ad-line)",
+                              background: selected ? hexToRgba(preset.hex, 0.1) : "var(--ad-raised)",
+                            }}
+                          >
+                            <span
+                              className="h-5 w-5 shrink-0 rounded-full border border-white/15"
+                              style={{ backgroundColor: preset.hex }}
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-[11.5px] font-medium text-[var(--ad-ink)]">
+                                {preset.name}
                               </span>
-                            </div>
-                            <p className="text-xs text-zinc-500 mt-0.5">{sec.desc}</p>
-                          </div>
-
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={secData.visible}
-                              onChange={(e) => updateSection(sec.key as keyof SiteConfig["sections"], "visible", e.target.checked)}
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
-                          </label>
-                        </div>
-
-                        {/* Section text details */}
-                        <div className="grid gap-3 sm:grid-cols-3 pt-3">
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Section Badge</label>
-                            <input
-                              type="text"
-                              value={secData.badgeText || ""}
-                              onChange={(e) => updateSection(sec.key as keyof SiteConfig["sections"], "badgeText", e.target.value)}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-red-500 focus:outline-none"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Main Title</label>
-                            <input
-                              type="text"
-                              value={"title" in secData ? (secData.title as string) : ""}
-                              onChange={(e) => updateSection(sec.key as keyof SiteConfig["sections"], "title", e.target.value)}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-red-500 focus:outline-none"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Highlighted Word</label>
-                            <input
-                              type="text"
-                              value={"titleHighlight" in secData ? (secData.titleHighlight as string) : ""}
-                              onChange={(e) => updateSection(sec.key as keyof SiteConfig["sections"], "titleHighlight", e.target.value)}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-red-500 focus:outline-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* ----------------- TAB 3: HEADER & FOOTER ----------------- */}
-            {activeTab === "headerFooter" && (
-              <div className="space-y-8 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <SlidersHorizontal className="h-3.5 w-3.5 text-red-500" />
-                    <span>Full control over header and footer</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Header (Navbar) & Footer Settings</h2>
-                </div>
-
-                {/* Header Section */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-5">
-                  <h3 className="text-sm font-bold text-white border-b border-zinc-900 pb-2">Header & Navigation Bar</h3>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {/* Logo */}
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-300 mb-1.5">Header Logo URL</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={config.header.logoUrl}
-                          onChange={(e) => updateHeader("logoUrl", e.target.value)}
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                          dir="ltr"
-                        />
-                        <label className="rounded-xl border border-zinc-700 bg-zinc-800 px-3 py-2 text-xs font-bold text-white hover:bg-zinc-700 cursor-pointer flex items-center gap-1">
-                          <Upload className="h-3.5 w-3.5" />
-                          <span>Upload</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleFileUpload(e, (url) => updateHeader("logoUrl", url))}
-                          />
-                        </label>
-                      </div>
-                      {config.header.logoUrl && (
-                        <div className="mt-2 p-2 rounded-lg bg-black border border-zinc-900 inline-block">
-                          <img src={config.header.logoUrl} alt="Logo" className="h-8 w-auto" />
-                        </div>
-                      )}
+                              <span className="ad-mono block text-[9.5px] uppercase text-[var(--ad-ink-ghost)]">
+                                {preset.hex}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
+                  </div>
 
-                    {/* WhatsApp CTA */}
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-300 mb-1.5">WhatsApp Quick Button in Header</label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="text"
+                  <div className="grid gap-4 border-t border-[var(--ad-line-soft)] pt-5 sm:grid-cols-3">
+                    {([
+                      ["Accent", "primaryColor"],
+                      ["Background", "backgroundColor"],
+                      ["Text", "textColor"],
+                    ] as const).map(([label, key]) => (
+                      <Field key={key} label={label}>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            aria-label={`${label} colour picker`}
+                            value={config.typography[key]}
+                            onChange={(e) => updateTypography(key, e.target.value)}
+                            className="ad-focusable h-9 w-9 shrink-0 cursor-pointer rounded-[8px] border border-[var(--ad-line)] bg-[var(--ad-input)] p-1"
+                          />
+                          <Input
+                            mono
+                            value={config.typography[key]}
+                            onChange={(e) => updateTypography(key, e.target.value)}
+                            dir="ltr"
+                            className="uppercase"
+                            aria-label={`${label} hex value`}
+                          />
+                        </div>
+                      </Field>
+                    ))}
+                  </div>
+                </div>
+              </Panel>
+            </div>
+          )}
+
+          {/* ---------------- TAB 2: SECTIONS ---------------- */}
+          {activeTab === "sections" && (
+            <div key="sections" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Structure"
+                title="Page sections"
+                lede="Turn any section of the portfolio on or off, and rewrite the label, title and highlighted word that introduce it."
+              />
+
+              <div className="ad-stagger grid gap-3">
+                {/* `titleKey` and `hasHighlight` describe the shape each section
+                    actually has. The hero stores its title as `titleLead`, and
+                    the contact section has no highlighted word — rendering a
+                    plain "title"/"titleHighlight" box for those showed an empty
+                    field that wrote a key nothing on the site reads. */}
+                {([
+                  { key: "hero", label: "Hero stage", desc: "Main headline, logo and animated keywords", titleKey: "titleLead", hasHighlight: true },
+                  { key: "showroom3d", label: "Interactive 3D showroom", desc: "Projects shown in a three-dimensional space", titleKey: "title", hasHighlight: true },
+                  { key: "portfolio", label: "Portfolio archive", desc: "Full archive with sector and style filters", titleKey: "title", hasHighlight: true },
+                  { key: "dataStats", label: "Data & KPI stats", desc: "Years of work, projects delivered, sector ratios", titleKey: "title", hasHighlight: true },
+                  { key: "services", label: "Services & deliverables", desc: "Service packages and what each includes", titleKey: "title", hasHighlight: true },
+                  { key: "studioBoards", label: "Client logos & house reel", desc: "Partner logo strip and production videos", titleKey: "title", hasHighlight: true },
+                  { key: "about", label: "About & why us", desc: "Vision, mission and studio differentiators", titleKey: "title", hasHighlight: true },
+                  { key: "contact", label: "Contact & consult", desc: "Brief form and cost estimator", titleKey: "title", hasHighlight: false },
+                ] as const).map((sec, i) => {
+                  const secData = config.sections[sec.key as keyof SiteConfig["sections"]];
+                  return (
+                    <Panel key={sec.key} className={secData.visible ? "" : "opacity-60"}>
+                      <div className="flex items-start justify-between gap-4 border-b border-[var(--ad-line-soft)] px-5 py-3.5">
+                        <div className="flex min-w-0 items-start gap-3">
+                          <span className="ad-mono mt-[3px] text-[10px] text-[var(--ad-ink-ghost)]">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="text-[13px] font-semibold text-[var(--ad-ink)]">{sec.label}</h3>
+                              <Tag tone={secData.visible ? "ok" : "muted"}>
+                                {secData.visible ? "Live" : "Hidden"}
+                              </Tag>
+                            </div>
+                            <p className="mt-0.5 text-[11.5px] text-[var(--ad-ink-faint)]">{sec.desc}</p>
+                          </div>
+                        </div>
+                        <Toggle
+                          checked={secData.visible}
+                          label={`Show ${sec.label}`}
+                          onChange={(next) =>
+                            updateSection(sec.key as keyof SiteConfig["sections"], "visible", next)
+                          }
+                        />
+                      </div>
+
+                      <div
+                        className={`grid gap-4 p-5 ${sec.hasHighlight ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
+                      >
+                        <Field label="Label">
+                          <Input
+                            value={secData.badgeText || ""}
+                            onChange={(e) =>
+                              updateSection(sec.key as keyof SiteConfig["sections"], "badgeText", e.target.value)
+                            }
+                          />
+                        </Field>
+                        <Field label="Title">
+                          <Input
+                            value={((secData as unknown as Record<string, string>)[sec.titleKey]) ?? ""}
+                            onChange={(e) =>
+                              updateSection(sec.key as keyof SiteConfig["sections"], sec.titleKey, e.target.value)
+                            }
+                          />
+                        </Field>
+                        {sec.hasHighlight && (
+                          <Field label="Highlighted word">
+                            <Input
+                              value={"titleHighlight" in secData ? (secData.titleHighlight as string) : ""}
+                              onChange={(e) =>
+                                updateSection(sec.key as keyof SiteConfig["sections"], "titleHighlight", e.target.value)
+                              }
+                            />
+                          </Field>
+                        )}
+                      </div>
+                    </Panel>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ---------------- TAB 3: HEADER & FOOTER ---------------- */}
+          {activeTab === "headerFooter" && (
+            <div key="headerFooter" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Structure"
+                title="Header & footer"
+                lede="The navigation bar at the top of every page, and the footer that closes it."
+              />
+
+              <Panel>
+                <PanelHead title="Navigation bar" icon={SlidersHorizontal} />
+                <div className="space-y-6 p-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <LogoField
+                      label="Logo image"
+                      hint="Upload a file, or paste a path such as /brand/wordmark.png"
+                      value={config.header.logoUrl}
+                      savedValue={savedConfig.header.logoUrl}
+                      onChange={(next) => updateHeader("logoUrl", next)}
+                      onUpload={(e) => handleFileUpload(e, (url) => updateHeader("logoUrl", url))}
+                    />
+
+                    <Field label="WhatsApp button" hint="Appears at the right of the navigation bar">
+                      <div className="flex items-center gap-2.5">
+                        <Input
                           value={config.header.whatsappCta.label}
+                          placeholder="Button text, e.g. WhatsApp"
                           onChange={(e) =>
                             setConfig((prev) => ({
                               ...prev,
@@ -732,224 +1012,187 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                               },
                             }))
                           }
-                          placeholder="Button text (e.g. WhatsApp)"
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                         />
-                        <label className="flex items-center gap-1.5 text-xs text-zinc-300 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={config.header.whatsappCta.show}
-                            onChange={(e) =>
-                              setConfig((prev) => ({
-                                ...prev,
-                                header: {
-                                  ...prev.header,
-                                  whatsappCta: { ...prev.header.whatsappCta, show: e.target.checked },
-                                },
-                              }))
-                            }
-                            className="rounded accent-red-600"
-                          />
-                          <span>Show button</span>
-                        </label>
+                        <Toggle
+                          checked={config.header.whatsappCta.show}
+                          label="Show WhatsApp button"
+                          onChange={(next) =>
+                            setConfig((prev) => ({
+                              ...prev,
+                              header: {
+                                ...prev.header,
+                                whatsappCta: { ...prev.header.whatsappCta, show: next },
+                              },
+                            }))
+                          }
+                        />
                       </div>
-                    </div>
+                    </Field>
                   </div>
 
-                  {/* Nav links */}
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-2">Navigation Links</label>
-                    <div className="space-y-2">
+                  <div className="border-t border-[var(--ad-line-soft)] pt-5">
+                    <p className="ad-micro mb-2.5">Navigation links</p>
+                    <div className="space-y-1.5">
                       {config.header.navLinks.map((link, idx) => (
-                        <div key={link.id || idx} className="flex items-center gap-2 rounded-xl border border-zinc-900 bg-black/60 p-2">
-                          <input
-                            type="text"
+                        <div
+                          key={link.id || idx}
+                          className="flex flex-wrap items-center gap-2 rounded-[10px] border border-[var(--ad-line-soft)] bg-[var(--ad-void)] p-2"
+                        >
+                          <Input
                             value={link.label}
+                            aria-label={`Link ${idx + 1} label`}
                             onChange={(e) => {
-                              const updated = [...config.header.navLinks];
-                              updated[idx].label = e.target.value;
+                              const updated = config.header.navLinks.map((l, i) =>
+                                i === idx ? { ...l, label: e.target.value } : l
+                              );
                               updateHeader("navLinks", updated);
                             }}
-                            className="w-36 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs text-white"
+                            // Inline width: `.ad-field` sets width:100% unlayered,
+                            // which beats Tailwind's layered w-* utilities.
+                            style={{ width: 150, flex: "0 0 auto" }}
                           />
-                          <input
-                            type="text"
-                            value={link.href}
-                            onChange={(e) => {
-                              const updated = [...config.header.navLinks];
-                              updated[idx].href = e.target.value;
-                              updateHeader("navLinks", updated);
-                            }}
-                            className="flex-1 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs text-zinc-400 font-mono"
+                          <Input
+                            mono
                             dir="ltr"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updated = [...config.header.navLinks];
-                              updated[idx].visible = !updated[idx].visible;
+                            value={link.href}
+                            aria-label={`Link ${idx + 1} destination`}
+                            onChange={(e) => {
+                              const updated = config.header.navLinks.map((l, i) =>
+                                i === idx ? { ...l, href: e.target.value } : l
+                              );
                               updateHeader("navLinks", updated);
                             }}
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${
-                              link.visible ? "bg-green-950 text-green-400 border border-green-800" : "bg-zinc-800 text-zinc-500"
-                            }`}
-                          >
-                            {link.visible ? "Active" : "Disabled"}
-                          </button>
+                            style={{ flex: "1 1 160px", minWidth: 0 }}
+                          />
+                          <Toggle
+                            checked={link.visible}
+                            label={`Show ${link.label}`}
+                            onChange={() => {
+                              const updated = config.header.navLinks.map((l, i) =>
+                                i === idx ? { ...l, visible: !l.visible } : l
+                              );
+                              updateHeader("navLinks", updated);
+                            }}
+                          />
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
+              </Panel>
 
-                {/* Footer Section */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-4">
-                  <h3 className="text-sm font-bold text-white border-b border-zinc-900 pb-2">Footer</h3>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-300 mb-1">Footer Logo URL</label>
-                      <input
-                        type="text"
-                        value={config.footer.logoUrl}
-                        onChange={(e) => updateFooter("logoUrl", e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                        dir="ltr"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-zinc-300 mb-1">Copyright Text</label>
-                      <input
-                        type="text"
+              <Panel>
+                <PanelHead title="Footer" icon={Layout} />
+                <div className="space-y-5 p-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <LogoField
+                      label="Footer logo"
+                      value={config.footer.logoUrl}
+                      savedValue={savedConfig.footer.logoUrl}
+                      onChange={(next) => updateFooter("logoUrl", next)}
+                      onUpload={(e) => handleFileUpload(e, (url) => updateFooter("logoUrl", url))}
+                      previewHeight="h-8"
+                    />
+                    <Field label="Copyright line">
+                      <Input
                         value={config.footer.copyrightText}
                         onChange={(e) => updateFooter("copyrightText", e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                       />
-                    </div>
+                    </Field>
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Footer Description</label>
-                    <textarea
+                  <Field label="Footer description">
+                    <TextArea
                       rows={2}
                       value={config.footer.description}
                       onChange={(e) => updateFooter("description", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-xs text-white leading-relaxed"
                     />
-                  </div>
+                  </Field>
                 </div>
-              </div>
-            )}
+              </Panel>
+            </div>
+          )}
 
-            {/* ----------------- TAB 4: HERO SECTION ----------------- */}
-            {activeTab === "hero" && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Sparkles className="h-3.5 w-3.5 text-red-500" />
-                    <span>Customize the first impression for visitors</span>
+          {/* ---------------- TAB 4: HERO ---------------- */}
+          {activeTab === "hero" && (
+            <div key="hero" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Structure"
+                title="Hero stage"
+                lede="The first thing a visitor reads. Keep the headline short and let the rotating keywords carry the range of work."
+              />
+
+              <Panel>
+                <PanelHead title="Headline" icon={Sparkles} />
+                <div className="space-y-5 p-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label="Badge text" hint="The small pill above the headline">
+                      <Input
+                        value={config.sections.hero.badgeText}
+                        onChange={(e) => updateSection("hero", "badgeText", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Headline lead">
+                      <Input
+                        value={config.sections.hero.titleLead}
+                        onChange={(e) => updateSection("hero", "titleLead", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Highlighted words" hint="Rendered in the brand accent colour">
+                      <Input
+                        value={config.sections.hero.titleHighlight}
+                        onChange={(e) => updateSection("hero", "titleHighlight", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Rotating keywords" hint="Separate with commas">
+                      <CommaListInput
+                        value={config.sections.hero.fields}
+                        onChange={(next) => updateSection("hero", "fields", next)}
+                        placeholder="Automotive, schools, places"
+                      />
+                    </Field>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Hero Stage</h2>
+
+                  <Field label="Description">
+                    <TextArea
+                      rows={3}
+                      value={config.sections.hero.description}
+                      onChange={(e) => updateSection("hero", "description", e.target.value)}
+                    />
+                  </Field>
                 </div>
+              </Panel>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Top Badge Text</label>
-                    <input
-                      type="text"
-                      value={config.sections.hero.badgeText}
-                      onChange={(e) => updateSection("hero", "badgeText", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Title Lead</label>
-                    <input
-                      type="text"
-                      value={config.sections.hero.titleLead}
-                      onChange={(e) => updateSection("hero", "titleLead", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Title Highlight (Red Word)</label>
-                    <input
-                      type="text"
-                      value={config.sections.hero.titleHighlight}
-                      onChange={(e) => updateSection("hero", "titleHighlight", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Animated Fields (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={config.sections.hero.fields.join(", ")}
-                      onChange={(e) =>
-                        updateSection(
-                          "hero",
-                          "fields",
-                          e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
-                        )
-                      }
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Description</label>
-                  <textarea
-                    rows={3}
-                    value={config.sections.hero.description}
-                    onChange={(e) => updateSection("hero", "description", e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-xs text-white leading-relaxed"
-                  />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">3D Studio Button Text (Button 1)</label>
-                    <input
-                      type="text"
+              <Panel>
+                <PanelHead title="Call-to-action buttons" icon={ExternalLink} />
+                <div className="grid gap-5 p-5 sm:grid-cols-2">
+                  <Field label="Primary button">
+                    <Input
                       value={config.sections.hero.btnShowroomText}
                       onChange={(e) => updateSection("hero", "btnShowroomText", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Archive Button Text (Button 2)</label>
-                    <input
-                      type="text"
+                  </Field>
+                  <Field label="Secondary button">
+                    <Input
                       value={config.sections.hero.btnArchiveText}
                       onChange={(e) => updateSection("hero", "btnArchiveText", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                     />
-                  </div>
+                  </Field>
                 </div>
-              </div>
-            )}
+              </Panel>
+            </div>
+          )}
 
-            {/* ----------------- TAB 5: PROJECTS CRUD ----------------- */}
-            {activeTab === "projects" && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                      <FolderKanban className="h-3.5 w-3.5 text-red-500" />
-                      <span>Manage all projects and work</span>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-white font-brand">
-                      Projects Gallery ({config.projects.length} projects)
-                    </h2>
-                  </div>
-
-                  <button
-                    type="button"
+          {/* ---------------- TAB 5: PROJECTS ---------------- */}
+          {activeTab === "projects" && (
+            <div key="projects" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Content"
+                title="Project archive"
+                lede="Every case study in the portfolio. Open one to edit its story, sector and images."
+                action={
+                  <Button
+                    variant="primary"
+                    icon={Plus}
                     onClick={() => {
                       const newProj: ProjectConfig = {
                         slug: `project-${Date.now()}`,
@@ -965,87 +1208,109 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                         keys: ["brand", "new"],
                       };
                       setConfig((prev) => ({ ...prev, projects: [newProj, ...prev.projects] }));
-                      setSelectedProject(newProj);
-                      setIsEditingProject(true);
+                      openProjectEditor(newProj);
                       notify("success", "New project created — ready to edit");
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-red-700 transition cursor-pointer"
                   >
-                    <Plus className="h-4 w-4" />
-                    <span>Add New Project</span>
-                  </button>
+                    Add project
+                  </Button>
+                }
+              />
+
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ad-ink-ghost)]" />
+                <input
+                  type="text"
+                  value={projectSearch}
+                  onChange={(e) => setProjectSearch(e.target.value)}
+                  placeholder="Search by name, sector or keyword…"
+                  aria-label="Search projects"
+                  className="ad-field ad-field-search"
+                />
+                <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
+                  <span className="ad-mono text-[10px] text-[var(--ad-ink-ghost)]">
+                    {filteredProjects.length}/{config.projects.length}
+                  </span>
+                  {projectSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setProjectSearch("")}
+                      aria-label="Clear search"
+                      className="ad-focusable rounded p-0.5 text-[var(--ad-ink-faint)] transition hover:text-[var(--ad-ink)]"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
+              </div>
 
-                {/* Search */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={projectSearch}
-                    onChange={(e) => setProjectSearch(e.target.value)}
-                    placeholder="Search projects by name, sector, or keywords..."
-                    className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 px-4 py-3 pr-10 text-xs text-white placeholder-zinc-600 focus:border-red-500 focus:outline-none"
-                  />
-                  <Search className="absolute right-3.5 top-3.5 h-4 w-4 text-zinc-500" />
-                </div>
-
-                {/* Projects List Grid */}
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {config.projects
-                    .filter(
-                      (p) =>
-                        p.title.toLowerCase().includes(projectSearch.toLowerCase()) ||
-                        p.arabic.includes(projectSearch) ||
-                        p.sector.toLowerCase().includes(projectSearch.toLowerCase())
-                    )
-                    .map((project, index) => (
-                      <div
-                        key={project.slug || index}
-                        className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-4 hover:border-zinc-700 transition flex flex-col justify-between gap-3 group"
-                      >
-                        <div className="space-y-2">
-                          <div className="aspect-video w-full rounded-xl overflow-hidden bg-black border border-zinc-900 relative">
-                            {project.images?.[0] ? (
-                              <img
-                                src={project.images[0]}
-                                alt={project.title}
-                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center text-xs text-zinc-600">
-                                No image
-                              </div>
-                            )}
-                            <span className="absolute top-2 left-2 rounded-lg bg-black/80 backdrop-blur-md px-2 py-0.5 text-[10px] text-zinc-300 font-mono">
-                              {project.sector}
-                            </span>
+              {filteredProjects.length === 0 ? (
+                <EmptyState
+                  icon={Search}
+                  title="No projects match that search"
+                  body={`Nothing in the archive matches “${projectSearch}”. Try a different name, sector or keyword.`}
+                  action={
+                    <Button onClick={() => setProjectSearch("")} icon={X}>
+                      Clear search
+                    </Button>
+                  }
+                />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredProjects.map((project, index) => (
+                    <article
+                      key={project.slug || index}
+                      className="group flex flex-col overflow-hidden rounded-[14px] border border-[var(--ad-line)] bg-[var(--ad-panel)]/80 transition hover:border-[var(--ad-line-strong)]"
+                    >
+                      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--ad-void)]">
+                        {project.images?.[0] ? (
+                          <SmartImage
+                            src={project.images[0]}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            // Two grid rows can sit above the fold on a wide screen.
+                            priority={index < 6}
+                            className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center">
+                            <ImageOff className="h-5 w-5 text-[var(--ad-ink-ghost)]" />
                           </div>
+                        )}
+                        <span className="absolute left-2.5 top-2.5">
+                          <Tag tone="neutral">{project.sector}</Tag>
+                        </span>
+                      </div>
 
-                          <div>
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-sm font-bold text-white">{project.title}</h4>
-                              <span className="text-xs text-red-400 font-medium">{project.arabic}</span>
-                            </div>
-                            <p className="text-[11px] text-zinc-400 line-clamp-2 mt-1">{project.problem}</p>
-                          </div>
+                      <div className="flex flex-1 flex-col gap-2 p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-[13px] font-semibold leading-snug text-[var(--ad-ink)]">
+                            {project.title}
+                          </h3>
+                          <span className="shrink-0 text-[12px] text-[var(--ad-ink-faint)]">{project.arabic}</span>
                         </div>
+                        <p className="line-clamp-2 text-[11.5px] leading-relaxed text-[var(--ad-ink-faint)]">
+                          {project.problem}
+                        </p>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-zinc-900">
-                          <span className="text-[10px] text-zinc-500">{project.images?.length || 0} images</span>
+                        <div className="mt-auto flex items-center justify-between gap-2 border-t border-[var(--ad-line-soft)] pt-3">
+                          <span className="ad-mono text-[10px] text-[var(--ad-ink-ghost)]">
+                            {project.images?.length || 0} image{(project.images?.length || 0) === 1 ? "" : "s"}
+                          </span>
                           <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedProject(project);
-                                setIsEditingProject(true);
-                              }}
-                              className="rounded-lg bg-zinc-900 px-3 py-1 text-xs font-semibold text-zinc-300 hover:bg-red-600 hover:text-white transition cursor-pointer"
+                            <Button
+                              variant="secondary"
+                              onClick={() => openProjectEditor(project)}
+                              className="px-3 py-1.5"
                             >
                               Edit
-                            </button>
+                            </Button>
                             <button
                               type="button"
+                              aria-label={`Delete ${project.title}`}
                               onClick={() => {
-                                if (window.confirm(`Are you sure you want to delete "${project.title}"?`)) {
+                                if (window.confirm(`Delete “${project.title}”? This cannot be undone.`)) {
                                   setConfig((prev) => ({
                                     ...prev,
                                     projects: prev.projects.filter((p) => p.slug !== project.slug),
@@ -1053,106 +1318,120 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                                   notify("success", "Project deleted");
                                 }
                               }}
-                              className="rounded-lg bg-zinc-900 p-1.5 text-zinc-500 hover:bg-red-950 hover:text-red-400 transition cursor-pointer"
+                              className="ad-focusable rounded-[8px] p-1.5 text-[var(--ad-ink-ghost)] transition hover:bg-[#f87171]/10 hover:text-[#f87171]"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         </div>
                       </div>
-                    ))}
+                    </article>
+                  ))}
                 </div>
+              )}
 
-                {/* Edit Project Modal */}
-                {isEditingProject && selectedProject && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-                    <div className="relative w-full max-w-2xl rounded-3xl border border-zinc-800 bg-[#0c0c14] p-6 shadow-2xl my-8">
-                      <div className="flex items-center justify-between border-b border-zinc-900 pb-3 mb-4">
-                        <h3 className="text-base font-bold text-white">Edit Project: {selectedProject.title}</h3>
-                        <button
-                          type="button"
-                          onClick={() => setIsEditingProject(false)}
-                          className="rounded-full bg-zinc-900 p-1.5 text-zinc-400 hover:text-white cursor-pointer"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
+              {/* Project editor — portalled to <body>, because an ancestor panel
+                  uses backdrop-blur, which makes it the containing block for
+                  `position: fixed` and would otherwise trap the overlay. */}
+              {isEditingProject && selectedProject && createPortal(
+                <div
+                  className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-md"
+                  onMouseDown={(e) => {
+                    if (e.target === e.currentTarget) closeProjectEditor();
+                  }}
+                >
+                  {/* The portal target is <body>, outside the page's font-variable
+                      scope, so the type system is re-declared here. */}
+                  <div
+                    className={`${adminFontVars} ad-root flex min-h-full items-start justify-center p-4`}
+                    style={accentVars}
+                  >
+                    <div
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label={`Edit ${selectedProject.title}`}
+                      className="ad-rise relative my-8 w-full max-w-2xl overflow-hidden rounded-[16px] border border-[var(--ad-line-strong)] bg-[var(--ad-panel)] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)]"
+                    >
+                      <div className="flex items-center justify-between gap-4 border-b border-[var(--ad-line)] px-5 py-4">
+                        <div className="min-w-0">
+                          <p className="ad-micro">Editing project</p>
+                          <h3 className="mt-1 truncate text-[15px] font-semibold text-[var(--ad-ink)]">
+                            {selectedProject.title}
+                          </h3>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Kbd>Esc</Kbd>
+                          <button
+                            type="button"
+                            onClick={closeProjectEditor}
+                            aria-label="Close editor"
+                            className="ad-focusable rounded-full border border-[var(--ad-line)] p-1.5 text-[var(--ad-ink-faint)] transition hover:text-[var(--ad-ink)]"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Project Title (English)</label>
-                            <input
-                              type="text"
+                      <div className="ad-scroll max-h-[min(66vh,640px)] space-y-5 overflow-y-auto px-5 py-5">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <Field label="Title (English)">
+                            <Input
                               value={selectedProject.title}
                               onChange={(e) => setSelectedProject({ ...selectedProject, title: e.target.value })}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                             />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Project Subtitle / Arabic Name</label>
-                            <input
-                              type="text"
+                          </Field>
+                          <Field label="Subtitle / Arabic name">
+                            <Input
                               value={selectedProject.arabic}
                               onChange={(e) => setSelectedProject({ ...selectedProject, arabic: e.target.value })}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                             />
-                          </div>
+                          </Field>
                         </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Slug (URL path)</label>
-                            <input
-                              type="text"
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <Field label="Slug" hint="The project's web address segment">
+                            <Input
+                              mono
+                              dir="ltr"
                               value={selectedProject.slug}
                               onChange={(e) => setSelectedProject({ ...selectedProject, slug: e.target.value })}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white font-mono"
-                              dir="ltr"
                             />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] text-zinc-400 mb-1">Sector</label>
-                            <select
+                          </Field>
+                          <Field label="Sector">
+                            <Select
                               value={selectedProject.sector}
                               onChange={(e) => setSelectedProject({ ...selectedProject, sector: e.target.value })}
-                              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
                             >
                               <option value="auto">Automotive</option>
                               <option value="education">Education</option>
-                              <option value="realestate">Real Estate</option>
-                              <option value="places">Places & Hospitality</option>
-                            </select>
-                          </div>
+                              <option value="realestate">Real estate</option>
+                              <option value="places">Places & hospitality</option>
+                            </Select>
+                          </Field>
                         </div>
 
-                        <div>
-                          <label className="block text-[11px] text-zinc-400 mb-1">The Problem / Challenge</label>
-                          <textarea
+                        <Field label="The problem" hint="What the brand was struggling with">
+                          <TextArea
                             rows={2}
                             value={selectedProject.problem}
                             onChange={(e) => setSelectedProject({ ...selectedProject, problem: e.target.value })}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-2.5 text-xs text-white"
                           />
-                        </div>
+                        </Field>
 
-                        <div>
-                          <label className="block text-[11px] text-zinc-400 mb-1">The Solution / Execution</label>
-                          <textarea
+                        <Field label="The solution" hint="What the studio delivered">
+                          <TextArea
                             rows={2}
                             value={selectedProject.solution}
                             onChange={(e) => setSelectedProject({ ...selectedProject, solution: e.target.value })}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-2.5 text-xs text-white"
                           />
-                        </div>
+                        </Field>
 
-                        {/* Project Images */}
                         <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <label className="block text-[11px] text-zinc-400">Project Images</label>
-                            <label className="rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1 text-[11px] font-bold text-red-400 hover:text-red-300 cursor-pointer flex items-center gap-1">
+                          <div className="mb-2.5 flex items-center justify-between">
+                            <p className="ad-micro">Images · {selectedProject.images.length}</p>
+                            <label className="ad-focusable inline-flex cursor-pointer items-center gap-1.5 rounded-[8px] border border-[var(--ad-line)] bg-[var(--ad-raised)] px-2.5 py-1 text-[11px] font-medium text-[var(--ad-ink)] transition hover:border-[var(--ad-line-strong)]">
                               <Upload className="h-3 w-3" />
-                              <span>Upload new image</span>
+                              Upload
                               <input
                                 type="file"
                                 accept="image/*"
@@ -1168,37 +1447,46 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                               />
                             </label>
                           </div>
+
                           <div className="space-y-1.5">
                             {selectedProject.images.map((img, i) => (
                               <div key={i} className="flex items-center gap-2">
-                                <span className="h-6 w-6 rounded overflow-hidden shrink-0 bg-black border border-zinc-800">
-                                  <img src={img} alt="" className="h-full w-full object-cover" />
+                                <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-[6px] border border-[var(--ad-line)] bg-[var(--ad-void)]">
+                                  <SmartImage
+                                    src={img}
+                                    alt=""
+                                    width={28}
+                                    height={28}
+                                    className="h-full w-full object-cover"
+                                  />
                                 </span>
-                                <input
-                                  type="text"
+                                <Input
+                                  mono
+                                  dir="ltr"
                                   value={img}
+                                  aria-label={`Image ${i + 1} path`}
                                   onChange={(e) => {
                                     const updated = [...selectedProject.images];
                                     updated[i] = e.target.value;
                                     setSelectedProject({ ...selectedProject, images: updated });
                                   }}
-                                  className="flex-1 rounded-lg border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300 font-mono"
-                                  dir="ltr"
                                 />
                                 <button
                                   type="button"
+                                  aria-label={`Remove image ${i + 1}`}
                                   onClick={() => {
                                     setSelectedProject({
                                       ...selectedProject,
                                       images: selectedProject.images.filter((_, idx) => idx !== i),
                                     });
                                   }}
-                                  className="p-1 text-zinc-500 hover:text-red-400 cursor-pointer"
+                                  className="ad-focusable shrink-0 rounded-[6px] p-1.5 text-[var(--ad-ink-ghost)] transition hover:bg-[#f87171]/10 hover:text-[#f87171]"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
                               </div>
                             ))}
+
                             <button
                               type="button"
                               onClick={() => {
@@ -1207,138 +1495,154 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                                   images: [...selectedProject.images, "/brand/identity.jpg"],
                                 });
                               }}
-                              className="text-[11px] text-zinc-400 hover:text-white transition flex items-center gap-1 mt-1 cursor-pointer"
+                              className="ad-focusable mt-1 inline-flex items-center gap-1.5 rounded-[6px] px-1 py-1 text-[11.5px] text-[var(--ad-ink-faint)] transition hover:text-[var(--ad-ink)]"
                             >
                               <Plus className="h-3 w-3" />
-                              <span>Add image URL</span>
+                              Add image path
                             </button>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-end gap-2 border-t border-zinc-900 pt-4 mt-4">
-                        <button
-                          type="button"
-                          onClick={() => setIsEditingProject(false)}
-                          className="rounded-xl border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white cursor-pointer"
-                        >
+                      <div className="flex items-center justify-end gap-2 border-t border-[var(--ad-line)] bg-[var(--ad-void)]/60 px-5 py-3.5">
+                        <Button variant="ghost" onClick={closeProjectEditor}>
                           Cancel
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          variant="primary"
                           onClick={() => {
+                            const nextSlug = selectedProject.slug.trim();
+                            if (!nextSlug) {
+                              notify("error", "Slug cannot be empty");
+                              return;
+                            }
+                            // Reject a slug that already belongs to a different project
+                            const clashes = config.projects.some(
+                              (p) => p.slug !== editingSlug && p.slug === nextSlug
+                            );
+                            if (clashes) {
+                              notify("error", `Slug "${nextSlug}" is already used by another project`);
+                              return;
+                            }
+
+                            const edited = { ...selectedProject, slug: nextSlug };
                             setConfig((prev) => ({
                               ...prev,
-                              projects: prev.projects.map((p) => (p.slug === selectedProject.slug ? selectedProject : p)),
+                              // Match on the slug the project had when the modal opened,
+                              // so renaming the slug still writes back to the right project.
+                              projects: prev.projects.map((p) => (p.slug === editingSlug ? edited : p)),
                             }));
-                            setIsEditingProject(false);
-                            notify("success", `Project "${selectedProject.title}" updated`);
+                            notify("success", `Project “${edited.title}” updated`);
+                            closeProjectEditor();
                           }}
-                          className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 cursor-pointer"
                         >
-                          Save Changes
-                        </button>
+                          Apply changes
+                        </Button>
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
+                </div>,
+                document.body
+              )}
+            </div>
+          )}
 
-            {/* ----------------- TAB 6: SERVICES ----------------- */}
-            {activeTab === "services" && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Wrench className="h-3.5 w-3.5 text-red-500" />
-                    <span>Manage studio services and deliverables</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">
-                    Service Packages ({config.studioServices.length} services)
-                  </h2>
-                </div>
+          {/* ---------------- TAB 6: SERVICES ---------------- */}
+          {activeTab === "services" && (
+            <div key="services" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Content"
+                title="Services & deliverables"
+                lede="The packages the studio sells, and exactly what each one includes."
+              />
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {config.studioServices.map((service, idx) => (
-                    <div key={idx} className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-bold text-red-500">{service.index}</span>
-                        <input
-                          type="text"
-                          value={service.tag}
-                          onChange={(e) => {
-                            const updated = [...config.studioServices];
-                            updated[idx].tag = e.target.value;
-                            setConfig((prev) => ({ ...prev, studioServices: updated }));
-                          }}
-                          className="w-24 rounded-lg border border-zinc-800 bg-zinc-900 px-2 py-1 text-[10px] text-zinc-400 uppercase text-center"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] text-zinc-400 mb-1">Service Name</label>
-                        <input
-                          type="text"
+              <div className="ad-stagger grid gap-4 lg:grid-cols-2">
+                {config.studioServices.map((service, idx) => (
+                  <Panel key={idx}>
+                    <div className="flex items-center justify-between gap-3 border-b border-[var(--ad-line-soft)] px-5 py-3">
+                      <span className="ad-mono text-[11px]" style={{ color: accent }}>
+                        {service.index}
+                      </span>
+                      <Input
+                        value={service.tag}
+                        aria-label={`Service ${idx + 1} tag`}
+                        onChange={(e) => {
+                          setConfig((prev) => ({
+                            ...prev,
+                            studioServices: prev.studioServices.map((s, i) =>
+                              i === idx ? { ...s, tag: e.target.value } : s
+                            ),
+                          }));
+                        }}
+                        className="ad-mono text-center text-[10px] uppercase"
+                        style={{ width: 130, flex: "0 0 auto" }}
+                      />
+                    </div>
+                    <div className="space-y-4 p-5">
+                      <Field label="Service name">
+                        <Input
                           value={service.title}
                           onChange={(e) => {
-                            const updated = [...config.studioServices];
-                            updated[idx].title = e.target.value;
-                            setConfig((prev) => ({ ...prev, studioServices: updated }));
+                            setConfig((prev) => ({
+                              ...prev,
+                              studioServices: prev.studioServices.map((s, i) =>
+                                i === idx ? { ...s, title: e.target.value } : s
+                              ),
+                            }));
                           }}
-                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white font-bold"
                         />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] text-zinc-400 mb-1">Description</label>
-                        <textarea
+                      </Field>
+                      <Field label="Description">
+                        <TextArea
                           rows={2}
                           value={service.text}
                           onChange={(e) => {
-                            const updated = [...config.studioServices];
-                            updated[idx].text = e.target.value;
-                            setConfig((prev) => ({ ...prev, studioServices: updated }));
+                            setConfig((prev) => ({
+                              ...prev,
+                              studioServices: prev.studioServices.map((s, i) =>
+                                i === idx ? { ...s, text: e.target.value } : s
+                              ),
+                            }));
                           }}
-                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-2 text-xs text-zinc-300"
                         />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] text-zinc-400 mb-1">Deliverables (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={service.deliverables.join(", ")}
-                          onChange={(e) => {
-                            const updated = [...config.studioServices];
-                            updated[idx].deliverables = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
-                            setConfig((prev) => ({ ...prev, studioServices: updated }));
+                      </Field>
+                      <Field label="Deliverables" hint="Separate with commas">
+                        <CommaListInput
+                          value={service.deliverables}
+                          onChange={(next) => {
+                            setConfig((prev) => ({
+                              ...prev,
+                              studioServices: prev.studioServices.map((s, i) =>
+                                i === idx ? { ...s, deliverables: next } : s
+                              ),
+                            }));
                           }}
-                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300"
                         />
-                      </div>
+                      </Field>
                     </div>
-                  ))}
-                </div>
+                  </Panel>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* ----------------- TAB 7: BRANDS & REELS ----------------- */}
-            {activeTab === "brandsReels" && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Film className="h-3.5 w-3.5 text-red-500" />
-                    <span>Client logos and reel videos</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Partner Logos & Studio Reels</h2>
-                </div>
+          {/* ---------------- TAB 7: CLIENTS & REELS ---------------- */}
+          {activeTab === "brandsReels" && (
+            <div key="brandsReels" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Content"
+                title="Clients & reels"
+                lede="The partner logos that rotate through the studio carousel."
+              />
 
-                {/* Client Marks */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-4">
-                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
-                    <h3 className="text-sm font-bold text-white">Client & Partner Logos</h3>
-                    <button
-                      type="button"
+              <Panel>
+                <PanelHead
+                  title="Client & partner logos"
+                  icon={Film}
+                  caption={`${config.marks.length} logos in the carousel`}
+                  action={
+                    <Button
+                      icon={Plus}
                       onClick={() => {
                         const newMark: ClientMarkConfig = {
                           name: "Brand Partner",
@@ -1346,294 +1650,320 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                         };
                         setConfig((prev) => ({ ...prev, marks: [...prev.marks, newMark] }));
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1 text-xs text-red-400 hover:text-white cursor-pointer"
                     >
-                      <Plus className="h-3 w-3" />
-                      <span>Add client logo</span>
-                    </button>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {config.marks.map((mark, idx) => (
-                      <div key={idx} className="flex items-center gap-2.5 rounded-xl border border-zinc-900 bg-black/60 p-2">
-                        <img src={mark.src} alt={mark.name} className="h-8 w-8 object-contain rounded bg-zinc-900 p-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <input
-                            type="text"
-                            value={mark.name}
-                            onChange={(e) => {
-                              const updated = [...config.marks];
-                              updated[idx].name = e.target.value;
-                              setConfig((prev) => ({ ...prev, marks: updated }));
-                            }}
-                            className="w-full rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-xs text-white"
-                          />
-                          <input
-                            type="text"
-                            value={mark.src}
-                            onChange={(e) => {
-                              const updated = [...config.marks];
-                              updated[idx].src = e.target.value;
-                              setConfig((prev) => ({ ...prev, marks: updated }));
-                            }}
-                            className="w-full rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[10px] text-zinc-400 mt-1 font-mono"
-                            dir="ltr"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setConfig((prev) => ({
-                              ...prev,
-                              marks: prev.marks.filter((_, i) => i !== idx),
-                            }));
-                          }}
-                          className="p-1 text-zinc-500 hover:text-red-400 cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ----------------- TAB 8: AGENCY & ABOUT ----------------- */}
-            {activeTab === "agencyAbout" && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Building className="h-3.5 w-3.5 text-red-500" />
-                    <span>Studio details, vision & contact info</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Agency Details, Vision & Contact</h2>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Agency Name</label>
-                    <input
-                      type="text"
-                      value={config.agency.name}
-                      onChange={(e) => updateAgency("name", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
+                      Add logo
+                    </Button>
+                  }
+                />
+                <div className="p-5">
+                  {config.marks.length === 0 ? (
+                    <EmptyState
+                      icon={Film}
+                      title="No client logos yet"
+                      body="Add a partner logo and it will appear in the rotating carousel on the public site."
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Formerly (Previous Name)</label>
-                    <input
-                      type="text"
-                      value={config.agency.former}
-                      onChange={(e) => updateAgency("former", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Contacts */}
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Business Email</label>
-                    <input
-                      type="email"
-                      value={config.agency.email}
-                      onChange={(e) => updateAgency("email", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                      dir="ltr"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={config.agency.phone}
-                      onChange={(e) => {
-                        updateAgency("phone", e.target.value);
-                        updateAgency("phoneHref", `tel:${e.target.value.replace(/[^0-9+]/g, "")}`);
-                      }}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                      dir="ltr"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">WhatsApp Number</label>
-                    <input
-                      type="text"
-                      value={config.agency.whatsapp}
-                      onChange={(e) => {
-                        updateAgency("whatsapp", e.target.value);
-                        updateAgency("whatsappHref", `https://wa.me/${e.target.value.replace(/[^0-9]/g, "")}`);
-                      }}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                      dir="ltr"
-                    />
-                  </div>
-                </div>
-
-                {/* Social links */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Facebook URL</label>
-                    <input
-                      type="text"
-                      value={config.agency.facebook}
-                      onChange={(e) => updateAgency("facebook", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                      dir="ltr"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Instagram URL</label>
-                    <input
-                      type="text"
-                      value={config.agency.instagram}
-                      onChange={(e) => updateAgency("instagram", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white"
-                      dir="ltr"
-                    />
-                  </div>
-                </div>
-
-                {/* Vision & Mission */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Agency Vision</label>
-                    <textarea
-                      rows={3}
-                      value={config.agency.vision}
-                      onChange={(e) => updateAgency("vision", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-xs text-white leading-relaxed"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Agency Mission</label>
-                    <textarea
-                      rows={3}
-                      value={config.agency.mission}
-                      onChange={(e) => updateAgency("mission", e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-xs text-white leading-relaxed"
-                    />
-                  </div>
-                </div>
-
-                {/* Why Us */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-3">
-                  <h3 className="text-xs font-bold text-zinc-300">Why Choose B2B — 8 Differentiators</h3>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {config.whyUs.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-red-500 font-bold">{idx + 1}</span>
-                        <input
-                          type="text"
-                          value={item}
-                          onChange={(e) => {
-                            const updated = [...config.whyUs];
-                            updated[idx] = e.target.value;
-                            setConfig((prev) => ({ ...prev, whyUs: updated }));
-                          }}
-                          className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ----------------- TAB 9: MEDIA & UPLOADS ----------------- */}
-            {activeTab === "media" && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <Upload className="h-3.5 w-3.5 text-red-500" />
-                    <span>Media library and file uploads</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Media Library & Uploads</h2>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    Upload images and videos directly from your device and use the link anywhere in the portfolio.
-                  </p>
-                </div>
-
-                {/* Uploader Box */}
-                <div className="rounded-3xl border-2 border-dashed border-zinc-800 bg-zinc-950/40 p-8 text-center hover:border-red-500/50 transition">
-                  <Upload className="h-10 w-10 text-red-500 mx-auto mb-3" />
-                  <h3 className="text-sm font-bold text-white">Choose an image or media file from your device</h3>
-                  <p className="text-xs text-zinc-500 mt-1 mb-4">Supports PNG, JPG, WebP, SVG images and MP4 videos</p>
-                  <label className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-red-700 cursor-pointer">
-                    {uploading ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    ) : (
-                      <Upload className="h-4 w-4" />
-                    )}
-                    <span>{uploading ? "Uploading..." : "Select & Upload File"}</span>
-                    <input
-                      type="file"
-                      accept="image/*,video/*"
-                      disabled={uploading}
-                      onChange={(e) => handleFileUpload(e)}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* Uploaded Gallery */}
-                <div>
-                  <h3 className="text-sm font-bold text-white mb-3">Recently Uploaded ({uploadedFiles.length})</h3>
-                  {uploadedFiles.length === 0 ? (
-                    <div className="rounded-2xl border border-zinc-900 bg-black/40 p-6 text-center text-xs text-zinc-500">
-                      No files uploaded in this session yet. Upload an image to see it here with a copy link option.
-                    </div>
                   ) : (
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {uploadedFiles.map((file, i) => (
-                        <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-3 space-y-2">
-                          <div className="aspect-video rounded-xl bg-black overflow-hidden flex items-center justify-center">
-                            <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
+                    <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                      {config.marks.map((mark, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-3 rounded-[10px] border border-[var(--ad-line-soft)] bg-[var(--ad-void)] p-2.5"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[var(--ad-line-soft)] bg-[var(--ad-raised)] p-1">
+                            <SmartImage
+                              src={mark.src}
+                              alt={mark.name}
+                              width={40}
+                              height={40}
+                              className="h-full w-full object-contain"
+                            />
+                          </span>
+                          <div className="min-w-0 flex-1 space-y-1.5">
+                            <Input
+                              value={mark.name}
+                              aria-label={`Logo ${idx + 1} name`}
+                              onChange={(e) => {
+                                setConfig((prev) => ({
+                                  ...prev,
+                                  marks: prev.marks.map((m, i) =>
+                                    i === idx ? { ...m, name: e.target.value } : m
+                                  ),
+                                }));
+                              }}
+                            />
+                            <Input
+                              mono
+                              dir="ltr"
+                              value={mark.src}
+                              aria-label={`Logo ${idx + 1} path`}
+                              onChange={(e) => {
+                                setConfig((prev) => ({
+                                  ...prev,
+                                  marks: prev.marks.map((m, i) =>
+                                    i === idx ? { ...m, src: e.target.value } : m
+                                  ),
+                                }));
+                              }}
+                            />
                           </div>
-                          <p className="text-[11px] text-zinc-300 font-medium truncate">{file.name}</p>
                           <button
                             type="button"
+                            aria-label={`Remove ${mark.name}`}
                             onClick={() => {
-                              navigator.clipboard.writeText(file.url);
-                              notify("success", `Image URL copied: ${file.url}`);
+                              setConfig((prev) => ({
+                                ...prev,
+                                marks: prev.marks.filter((_, i) => i !== idx),
+                              }));
                             }}
-                            className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 py-1.5 text-xs text-zinc-300 hover:text-white cursor-pointer"
+                            className="ad-focusable shrink-0 self-start rounded-[6px] p-1.5 text-[var(--ad-ink-ghost)] transition hover:bg-[#f87171]/10 hover:text-[#f87171]"
                           >
-                            <Copy className="h-3 w-3" />
-                            <span>Copy Image URL</span>
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-              </div>
-            )}
+              </Panel>
+            </div>
+          )}
 
-            {/* ----------------- TAB 10: BACKUP & RESET ----------------- */}
-            {activeTab === "backup" && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs text-red-400 mb-2">
-                    <RotateCcw className="h-3.5 w-3.5 text-red-500" />
-                    <span>Backup and restore data</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-brand">Backup & Factory Reset</h2>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    Download a backup of all site settings and content, or restore the original default configuration.
-                  </p>
+          {/* ---------------- TAB 8: ABOUT & CONTACT ---------------- */}
+          {activeTab === "agencyAbout" && (
+            <div key="agencyAbout" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="Content"
+                title="Studio & contact"
+                lede="Who the studio is, how to reach it, and the reasons a client should choose it."
+              />
+
+              <Panel>
+                <PanelHead title="Identity" icon={Building} />
+                <div className="grid gap-5 p-5 sm:grid-cols-2">
+                  <Field label="Studio name">
+                    <Input value={config.agency.name} onChange={(e) => updateAgency("name", e.target.value)} />
+                  </Field>
+                  <Field label="Formerly known as">
+                    <Input value={config.agency.former} onChange={(e) => updateAgency("former", e.target.value)} />
+                  </Field>
                 </div>
+              </Panel>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {/* Export */}
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5 space-y-3">
-                    <h3 className="text-sm font-bold text-white">Export Backup (JSON)</h3>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      Download a JSON file containing all settings, fonts, projects, and images — restore anytime.
+              <Panel>
+                <PanelHead title="Contact" icon={ExternalLink} caption="Links update automatically as you type" />
+                <div className="space-y-5 p-5">
+                  <div className="grid gap-5 sm:grid-cols-3">
+                    <Field label="Business email">
+                      <Input
+                        type="email"
+                        mono
+                        dir="ltr"
+                        value={config.agency.email}
+                        onChange={(e) => updateAgency("email", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Phone">
+                      <Input
+                        mono
+                        dir="ltr"
+                        value={config.agency.phone}
+                        onChange={(e) => {
+                          updateAgency("phone", e.target.value);
+                          updateAgency("phoneHref", `tel:${e.target.value.replace(/[^0-9+]/g, "")}`);
+                        }}
+                      />
+                    </Field>
+                    <Field label="WhatsApp">
+                      <Input
+                        mono
+                        dir="ltr"
+                        value={config.agency.whatsapp}
+                        onChange={(e) => {
+                          updateAgency("whatsapp", e.target.value);
+                          updateAgency("whatsappHref", `https://wa.me/${e.target.value.replace(/[^0-9]/g, "")}`);
+                        }}
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="grid gap-5 border-t border-[var(--ad-line-soft)] pt-5 sm:grid-cols-2">
+                    <Field label="Facebook URL">
+                      <Input
+                        mono
+                        dir="ltr"
+                        value={config.agency.facebook}
+                        onChange={(e) => updateAgency("facebook", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Instagram URL">
+                      <Input
+                        mono
+                        dir="ltr"
+                        value={config.agency.instagram}
+                        onChange={(e) => updateAgency("instagram", e.target.value)}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </Panel>
+
+              <Panel>
+                <PanelHead title="Vision & mission" icon={Sparkles} />
+                <div className="grid gap-5 p-5 sm:grid-cols-2">
+                  <Field label="Vision">
+                    <TextArea
+                      rows={4}
+                      value={config.agency.vision}
+                      onChange={(e) => updateAgency("vision", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Mission">
+                    <TextArea
+                      rows={4}
+                      value={config.agency.mission}
+                      onChange={(e) => updateAgency("mission", e.target.value)}
+                    />
+                  </Field>
+                </div>
+              </Panel>
+
+              <Panel>
+                <PanelHead
+                  title="Why choose B2B."
+                  icon={CheckCircle2}
+                  caption={`${config.whyUs.length} differentiators shown on the About section`}
+                />
+                <div className="grid gap-2.5 p-5 sm:grid-cols-2">
+                  {config.whyUs.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2.5">
+                      <span className="ad-mono w-5 shrink-0 text-right text-[10px] text-[var(--ad-ink-ghost)]">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      <Input
+                        value={item}
+                        aria-label={`Differentiator ${idx + 1}`}
+                        onChange={(e) => {
+                          setConfig((prev) => ({
+                            ...prev,
+                            whyUs: prev.whyUs.map((w, i) => (i === idx ? e.target.value : w)),
+                          }));
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Panel>
+            </div>
+          )}
+
+          {/* ---------------- TAB 9: MEDIA ---------------- */}
+          {activeTab === "media" && (
+            <div key="media" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="System"
+                title="Media library"
+                lede="Upload images and video from your device, then copy the path into any field across the dashboard."
+              />
+
+              <label
+                className={`ad-focusable flex cursor-pointer flex-col items-center justify-center rounded-[14px] border border-dashed px-6 py-14 text-center transition ${
+                  uploading
+                    ? "border-[var(--ad-accent-line)] bg-[var(--ad-accent-soft)]"
+                    : "border-[var(--ad-line-strong)] bg-[var(--ad-panel)]/50 hover:border-[var(--ad-accent-line)] hover:bg-[var(--ad-accent-soft)]"
+                }`}
+              >
+                {uploading ? (
+                  <span className="h-7 w-7 animate-spin rounded-full border-2 border-[var(--ad-accent)]/30 border-t-[var(--ad-accent)]" />
+                ) : (
+                  <Upload className="h-7 w-7" style={{ color: accent }} />
+                )}
+                <p className="mt-4 text-[13.5px] font-medium text-[var(--ad-ink)]">
+                  {uploading ? "Uploading…" : "Choose a file to upload"}
+                </p>
+                <p className="ad-mono mt-1.5 text-[10px] uppercase tracking-[0.1em] text-[var(--ad-ink-ghost)]">
+                  PNG · JPG · WEBP · SVG · GIF · MP4 · MOV · WEBM
+                </p>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  disabled={uploading}
+                  onChange={(e) => handleFileUpload(e)}
+                  className="hidden"
+                />
+              </label>
+
+              <div>
+                <p className="ad-micro mb-3">Uploaded this session · {uploadedFiles.length}</p>
+                {uploadedFiles.length === 0 ? (
+                  <EmptyState
+                    icon={ImageOff}
+                    title="Nothing uploaded yet"
+                    body="Files you upload in this session appear here with a one-click copy button for their path."
+                  />
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {uploadedFiles.map((file, i) => (
+                      <Panel key={i} className="overflow-hidden">
+                        <div className="relative aspect-video bg-[var(--ad-void)]">
+                          {isVideoUrl(file.url) ? (
+                            <video
+                              src={file.url}
+                              muted
+                              playsInline
+                              preload="metadata"
+                              controls
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <SmartImage
+                              src={file.url}
+                              alt={file.name}
+                              fill
+                              sizes="(max-width: 640px) 100vw, 33vw"
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="space-y-2.5 p-3">
+                          <p className="truncate text-[12px] font-medium text-[var(--ad-ink)]">{file.name}</p>
+                          <Button
+                            icon={Copy}
+                            className="w-full"
+                            onClick={() => {
+                              navigator.clipboard.writeText(file.url);
+                              notify("success", `Copied ${file.url}`);
+                            }}
+                          >
+                            Copy path
+                          </Button>
+                        </div>
+                      </Panel>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ---------------- TAB 10: BACKUP ---------------- */}
+          {activeTab === "backup" && (
+            <div key="backup" className="ad-rise space-y-7">
+              <TabHead
+                eyebrow="System"
+                title="Backup & reset"
+                lede="Export everything to a file you can keep, restore from one later, or return the whole portfolio to its original state."
+              />
+
+              <div className="grid gap-5 lg:grid-cols-2">
+                <Panel>
+                  <PanelHead title="Export" icon={Download} caption="Download the full configuration as JSON" />
+                  <div className="space-y-5 p-5">
+                    <p className="text-[12.5px] leading-relaxed text-[var(--ad-ink-faint)]">
+                      Contains every setting, font, colour, section, project and image path currently
+                      on screen — including unsaved edits.
                     </p>
-                    <button
-                      type="button"
+                    <Button
+                      icon={Download}
                       onClick={() => {
                         const jsonStr = JSON.stringify(config, null, 2);
                         const blob = new Blob([jsonStr], { type: "application/json" });
@@ -1641,38 +1971,77 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                         const a = document.createElement("a");
                         a.href = url;
                         a.download = `b2b-portfolio-config-${new Date().toISOString().slice(0, 10)}.json`;
+                        document.body.appendChild(a);
                         a.click();
-                        URL.revokeObjectURL(url);
-                        notify("success", "Backup file downloaded successfully");
+                        a.remove();
+                        // Revoking synchronously can cancel the download in some
+                        // browsers before it has started reading the blob.
+                        setTimeout(() => URL.revokeObjectURL(url), 10_000);
+                        notify("success", "Backup file downloaded");
                       }}
-                      className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white hover:border-zinc-700 cursor-pointer"
                     >
-                      <Download className="h-4 w-4" />
-                      <span>Download Backup</span>
-                    </button>
-                  </div>
+                      Download backup
+                    </Button>
 
-                  {/* Factory Reset */}
-                  <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-5 space-y-3">
-                    <h3 className="text-sm font-bold text-red-300">Factory Reset</h3>
-                    <p className="text-xs text-red-400/80 leading-relaxed">
-                      Restore all settings, fonts, and projects to the original default state.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleReset}
-                      className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-red-700 transition cursor-pointer"
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                      <span>Restore Default Settings</span>
-                    </button>
+                    <div className="border-t border-[var(--ad-line-soft)] pt-5">
+                      <p className="ad-micro mb-2">Restore</p>
+                      <p className="mb-3.5 text-[12.5px] leading-relaxed text-[var(--ad-ink-faint)]">
+                        Load a previously downloaded backup. Nothing is published until you press
+                        Save changes.
+                      </p>
+                      <label className="ad-focusable inline-flex cursor-pointer items-center gap-1.5 rounded-[10px] border border-[var(--ad-line)] bg-[var(--ad-raised)] px-3.5 py-2 text-[12px] font-medium text-[var(--ad-ink)] transition hover:border-[var(--ad-line-strong)]">
+                        <FileJson className="h-3.5 w-3.5" />
+                        Choose backup file
+                        <input
+                          type="file"
+                          accept="application/json,.json"
+                          className="hidden"
+                          onChange={handleImportBackup}
+                        />
+                      </label>
+                    </div>
                   </div>
-                </div>
+                </Panel>
+
+                <Panel className="border-[#f87171]/20">
+                  <PanelHead title="Factory reset" icon={RotateCcw} caption="Return everything to the original state" />
+                  <div className="space-y-5 p-5">
+                    <p className="text-[12.5px] leading-relaxed text-[var(--ad-ink-faint)]">
+                      Restores all settings, fonts, colours, sections and projects to the defaults the
+                      portfolio shipped with. Export a backup first if you might want today&apos;s
+                      version again.
+                    </p>
+                    <Button variant="danger" icon={RotateCcw} onClick={handleReset} disabled={saving}>
+                      Restore defaults
+                    </Button>
+                  </div>
+                </Panel>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </main>
       </div>
+
+      {/* Toast */}
+      {statusMessage && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="ad-toast fixed left-1/2 top-[74px] z-[60] flex max-w-[92vw] items-center gap-2.5 rounded-[10px] border px-4 py-2.5 text-[12.5px] font-medium shadow-[0_18px_40px_-12px_rgba(0,0,0,0.85)] backdrop-blur-xl"
+          style={{
+            borderColor: statusMessage.type === "success" ? "rgba(74,222,128,0.35)" : "rgba(248,113,113,0.4)",
+            background: statusMessage.type === "success" ? "rgba(5,26,14,0.95)" : "rgba(32,8,10,0.95)",
+            color: statusMessage.type === "success" ? "#86efac" : "#fca5a5",
+          }}
+        >
+          {statusMessage.type === "success" ? (
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          ) : (
+            <AlertCircle className="h-4 w-4 shrink-0" />
+          )}
+          <span>{statusMessage.text}</span>
+        </div>
+      )}
     </div>
   );
 }

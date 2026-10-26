@@ -3,6 +3,7 @@
 import { ArrowUp } from "lucide-react";
 import { sound } from "@/lib/sound";
 import { useSiteConfig } from "@/context/SiteConfigContext";
+import { SmartImage } from "@/components/SmartImage";
 
 export function SiteFooter() {
   const { config } = useSiteConfig();
@@ -24,7 +25,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col items-start justify-between gap-8 border-b border-zinc-900 pb-10 md:flex-row md:items-center">
           <div>
-            <img src={logoUrl} alt="B2B. Marketing Agency" className="h-16 w-auto" />
+            <SmartImage src={logoUrl} alt="B2B. Marketing Agency" width={792} height={398} autoAxis="width" className="h-16 w-auto" />
             <p className="mt-2 max-w-sm text-xs text-zinc-400">{description}</p>
           </div>
           <div className="flex flex-wrap gap-5 text-xs text-zinc-400">

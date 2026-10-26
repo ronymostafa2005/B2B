@@ -92,9 +92,12 @@ export function Reel() {
   const [sitesReady, setSitesReady] = useState(false);
   const active = chapters[chapter];
 
-  useEffect(() => {
-    if (chapter === 2) setSitesReady(true);
-  }, [chapter]);
+  // Once the sites chapter has been reached, keep it mounted. Adjusting state
+  // during render is the supported pattern here; an effect would cause an
+  // extra cascading render on every chapter change.
+  if (chapter === 2 && !sitesReady) {
+    setSitesReady(true);
+  }
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

@@ -3,20 +3,16 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import type { SiteConfig } from "@/types/config";
 import { defaultConfig } from "@/data/default-config";
-import Link from "next/link";
-import { ShieldCheck, SlidersHorizontal } from "lucide-react";
 
 interface SiteConfigContextType {
   config: SiteConfig;
   isLoading: boolean;
-  isAdminLoggedIn: boolean;
   refreshConfig: () => Promise<void>;
 }
 
 const SiteConfigContext = createContext<SiteConfigContextType>({
   config: defaultConfig,
   isLoading: false,
-  isAdminLoggedIn: false,
   refreshConfig: async () => {},
 });
 
@@ -32,7 +28,6 @@ interface ProviderProps {
 export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
   const [config, setConfig] = useState<SiteConfig>(initialConfig || defaultConfig);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   const refreshConfig = async () => {
     try {
@@ -43,6 +38,8 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
         setConfig(data);
       }
     } catch (err) {
+      // Keep whatever config we already have (the server-rendered one) rather
+      // than dropping the whole site back to defaults on a transient failure.
       console.error("Error refreshing site config:", err);
     } finally {
       setIsLoading(false);
@@ -50,20 +47,17 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
   };
 
   useEffect(() => {
-    // Check if client is logged in
-    fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.authenticated) {
-          setIsAdminLoggedIn(true);
-        }
-      })
-      .catch(() => {});
+    let cancelled = false;
 
-    // Refresh config from API to get any latest edits
-    refreshConfig();
+    // The server already renders with the saved config, so only fetch on mount
+    // when this provider was mounted without one.
+    if (!initialConfig) {
+      (async () => {
+        if (!cancelled) await refreshConfig();
+      })();
+    }
 
-    // Listen for live updates from admin dashboard in any tab
+    // Live updates published by the dashboard, from this tab or any other.
     let channel: BroadcastChannel | null = null;
     if (typeof window !== "undefined" && "BroadcastChannel" in window) {
       try {
@@ -86,9 +80,11 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
     window.addEventListener("storage", handleStorage);
 
     return () => {
+      cancelled = true;
       if (channel) channel.close();
       window.removeEventListener("storage", handleStorage);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Compute Google Fonts stylesheet URL
@@ -165,30 +161,12 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
   }, [config.typography]);
 
   return (
-    <SiteConfigContext.Provider value={{ config, isLoading, isAdminLoggedIn, refreshConfig }}>
+    <SiteConfigContext.Provider value={{ config, isLoading, refreshConfig }}>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="stylesheet" href={googleFontsHref} />
       <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
       {children}
-
-      {/* Floating Client Dashboard Quick-Access Badge when logged in */}
-      {isAdminLoggedIn && (
-        <div className="fixed bottom-6 left-6 z-50">
-          <Link
-            href="/admin"
-            className="group flex items-center gap-2.5 rounded-full border border-red-500/60 bg-black/90 px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_25px_rgba(229,9,20,0.6)] backdrop-blur-xl transition hover:scale-105 hover:bg-red-950/80"
-          >
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600"></span>
-            </span>
-            <SlidersHorizontal className="h-4 w-4 text-red-500 transition group-hover:rotate-45" />
-            <span>Client Dashboard</span>
-            <span className="rounded-full bg-red-600/30 px-1.5 py-0.5 text-[10px] text-red-300">Active</span>
-          </Link>
-        </div>
-      )}
     </SiteConfigContext.Provider>
   );
 }

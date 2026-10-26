@@ -1,0 +1,312 @@
+/*
+ * Dashboard design tokens — "the grading bay".
+ *
+ * Everything is scoped under .ad-root so none of it reaches the public site,
+ * which runs its own palette and type pairing. The accent is deliberately NOT
+ * hard-coded: the dashboard sets --ad-accent from the client's saved brand
+ * colour, so the tool always wears the brand it is editing.
+ */
+
+.ad-root {
+  /* Surfaces — a short, deliberate ramp rather than scattered zinc values. */
+  --ad-void: #050507;
+  --ad-base: #08080b;
+  --ad-panel: #0b0b0f;
+  --ad-raised: #101016;
+  --ad-input: #0d0d12;
+
+  /* Hairlines. Panels are defined by light, not by heavy boxes. */
+  --ad-line: rgba(255, 255, 255, 0.07);
+  --ad-line-soft: rgba(255, 255, 255, 0.04);
+  --ad-line-strong: rgba(255, 255, 255, 0.13);
+
+  /* Text ramp */
+  --ad-ink: #f4f4f6;
+  --ad-ink-dim: #a1a1ad;
+  --ad-ink-faint: #6b6b78;
+  --ad-ink-ghost: #45454f;
+
+  /* Accent is injected inline from config; these are only fallbacks. */
+  --ad-accent: #e50914;
+  --ad-accent-soft: rgba(229, 9, 20, 0.14);
+  --ad-accent-line: rgba(229, 9, 20, 0.42);
+
+  --ad-ok: #4ade80;
+  --ad-warn: #fbbf24;
+
+  --ad-radius: 10px;
+  --ad-radius-lg: 14px;
+
+  font-family: var(--font-admin-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ad-ink);
+  background-color: var(--ad-base);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv05" 1, "ss01" 1;
+}
+
+/* Film grain + a faint overhead wash, so the ground has depth instead of
+   being a flat fill. Pointer-events none so it never eats a click. */
+.ad-atmos::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% -10%, var(--ad-accent-soft), transparent 60%),
+    radial-gradient(90% 50% at 100% 0%, rgba(255, 255, 255, 0.035), transparent 70%);
+}
+
+.ad-atmos::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.ad-display {
+  font-family: var(--font-admin-display), ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+.ad-mono {
+  font-family: var(--font-admin-mono), ui-monospace, monospace;
+  font-feature-settings: "zero" 1;
+}
+
+/* Micro-label: the small uppercase mono caption above a group. */
+.ad-micro {
+  font-family: var(--font-admin-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ad-ink-faint);
+}
+
+/* ---- Controls ---------------------------------------------------------- */
+
+.ad-field {
+  width: 100%;
+  background: var(--ad-input);
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-radius);
+  padding: 8px 11px;
+  font-size: 12.5px;
+  color: var(--ad-ink);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ad-field::placeholder {
+  color: var(--ad-ink-ghost);
+}
+
+.ad-field:hover:not(:disabled) {
+  border-color: var(--ad-line-strong);
+}
+
+/* One focus treatment across every control, and it is always visible —
+   the previous UI used focus:outline-none with nothing in its place. */
+.ad-field:focus,
+.ad-field:focus-visible {
+  outline: none;
+  border-color: var(--ad-accent);
+  background: var(--ad-raised);
+  box-shadow: 0 0 0 3px var(--ad-accent-soft);
+}
+
+.ad-focusable:focus-visible {
+  outline: 2px solid var(--ad-accent);
+  outline-offset: 2px;
+  border-radius: var(--ad-radius);
+}
+
+textarea.ad-field {
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 64px;
+}
+
+/* Search variant. Tailwind v4 emits utilities inside @layer, so unlayered
+   rules like `.ad-field` win over `pl-10` — the padding has to live here. */
+.ad-field-search {
+  padding: 10px 92px 10px 38px;
+}
+
+select.ad-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b6b78' stroke-width='1.5'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 30px;
+}
+
+/* Range sliders: the accent fills the track so the value reads at a glance. */
+.ad-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--ad-line-strong);
+  outline: none;
+}
+
+.ad-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--ad-ink);
+  border: 3px solid var(--ad-accent);
+  cursor: grab;
+  transition: transform 0.12s ease;
+}
+
+.ad-range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.ad-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--ad-ink);
+  border: 3px solid var(--ad-accent);
+  cursor: grab;
+}
+
+.ad-range:focus-visible {
+  box-shadow: 0 0 0 3px var(--ad-accent-soft);
+}
+
+/* ---- Navigation rail --------------------------------------------------- */
+
+.ad-nav-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px 7px 12px;
+  border-radius: var(--ad-radius);
+  color: var(--ad-ink-dim);
+  text-align: left;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.ad-nav-item:hover {
+  color: var(--ad-ink);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* The active marker is a bar on the rail, not a filled pill — it keeps the
+   accent for things that matter and stops the sidebar shouting. */
+.ad-nav-item[data-active="true"] {
+  color: var(--ad-ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ad-nav-item[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--ad-accent);
+}
+
+/* ---- Motion ------------------------------------------------------------ */
+
+/* One orchestrated entrance per panel beats scattered micro-animations. */
+@keyframes ad-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ad-rise {
+  animation: ad-rise 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ad-stagger > * {
+  animation: ad-rise 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ad-stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.ad-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.ad-stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.ad-stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.ad-stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.ad-stagger > *:nth-child(6) { animation-delay: 0.22s; }
+
+@keyframes ad-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.ad-toast {
+  animation: ad-toast-in 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ad-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.ad-pulse {
+  animation: ad-pulse 2s ease-in-out infinite;
+}
+
+.ad-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.ad-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ad-scroll::-webkit-scrollbar-thumb {
+  background: var(--ad-line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.ad-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ad-ink-ghost);
+  background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-rise,
+  .ad-stagger > *,
+  .ad-toast,
+  .ad-pulse {
+    animation: none !important;
+  }
+}

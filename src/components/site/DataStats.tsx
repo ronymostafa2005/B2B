@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { recipe, sectors } from "@/lib/content";
 import { sound } from "@/lib/sound";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useSiteConfig } from "@/context/SiteConfigContext";
 
 const colors = ["#E50914", "#F59E0B", "#6366F1", "#10B981", "#EC4899"];
@@ -165,13 +166,10 @@ export function DataStats() {
 
 function Count({ to, run }: { to: number; run: boolean }) {
   const [value, setValue] = useState(0);
+  const reduceMotion = useReducedMotion();
+
   useEffect(() => {
-    if (!run) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setValue(to);
-      return;
-    }
+    if (!run || reduceMotion) return;
     const start = performance.now();
     let frame = 0;
     const tick = (now: number) => {
@@ -181,6 +179,8 @@ function Count({ to, run }: { to: number; run: boolean }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [run, to]);
-  return <span>{value}</span>;
+  }, [run, to, reduceMotion]);
+
+  // With reduced motion the final number is shown without counting up.
+  return <span>{reduceMotion ? (run ? to : 0) : value}</span>;
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { marks as defaultMarks } from "@/lib/content";
 import { useSiteConfig } from "@/context/SiteConfigContext";
+import { SmartImage } from "@/components/SmartImage";
 
 function wrapOffset(index: number, active: number, count: number) {
   let offset = index - active;
@@ -58,7 +59,16 @@ export function LogoStage() {
                 zIndex: 20 - distance,
               }}
             >
-              <img src={mark.src} alt="" width={240} height={140} className="h-auto max-h-[110px] w-auto max-w-[170px] object-contain sm:max-h-[128px] sm:max-w-[190px]" />
+              <SmartImage
+                src={mark.src}
+                alt=""
+                width={240}
+                height={140}
+                // The carousel rotates these in from offscreen, so lazy
+                // loading would make an off-centre mark pop in mid-rotation.
+                loading="eager"
+                className="h-auto max-h-[110px] w-auto max-w-[170px] object-contain sm:max-h-[128px] sm:max-w-[190px]"
+              />
             </button>
           );
         })}

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (!ALLOWED_EXT.includes(ext)) {
       return NextResponse.json(
-        { error: `Unsupported file type (${ext}). Supported: png, jpg, webp, svg, gif, mp4` },
+        { error: `Unsupported file type (${ext}). Supported: png, jpg, jpeg, webp, svg, gif, mp4, mov, webm` },
         { status: 400 }
       );
     }
