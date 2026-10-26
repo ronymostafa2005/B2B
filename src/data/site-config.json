@@ -1,0 +1,996 @@
+{
+  "typography": {
+    "brandFont": "Playfair Display",
+    "bodyFont": "Plus Jakarta Sans",
+    "baseFontSize": 16,
+    "headingScale": 1,
+    "primaryColor": "#E50914",
+    "primaryGlow": "#E5091466",
+    "backgroundColor": "#070709",
+    "cardBackground": "#0c0c10",
+    "textColor": "#F3F4F6"
+  },
+  "header": {
+    "logoUrl": "/brand/wordmark.png",
+    "logoAlt": "B2B. Marketing Agency",
+    "logoHeight": 48,
+    "showNav": true,
+    "navLinks": [
+      {
+        "id": "3d",
+        "href": "#showcase-3d",
+        "label": "3D Spatial",
+        "visible": true
+      },
+      {
+        "id": "portfolio",
+        "href": "#portfolio",
+        "label": "Portfolio",
+        "visible": true
+      },
+      {
+        "id": "data",
+        "href": "#agency-data",
+        "label": "Data Impact",
+        "visible": true
+      },
+      {
+        "id": "services",
+        "href": "#services",
+        "label": "Services",
+        "visible": true
+      },
+      {
+        "id": "about",
+        "href": "#about",
+        "label": "About",
+        "visible": true
+      }
+    ],
+    "whatsappCta": {
+      "label": "WhatsApp",
+      "show": true
+    }
+  },
+  "sections": {
+    "hero": {
+      "visible": true,
+      "badgeText": "B2B. creative studio · identities, campaigns, social",
+      "titleLead": "Work that",
+      "titleHighlight": "holds the frame",
+      "fields": [
+        "Automotive",
+        "schools",
+        "places",
+        "brands"
+      ],
+      "description": "B2B. is the studio for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social.",
+      "btnShowroomText": "Enter the 3D showroom",
+      "btnArchiveText": "Browse the archive",
+      "stats": [
+        {
+          "value": 4,
+          "suffix": "+",
+          "label": "Years of work"
+        },
+        {
+          "value": 100,
+          "suffix": "+",
+          "label": "Projects shipped"
+        },
+        {
+          "value": 150,
+          "suffix": "+",
+          "label": "Clients"
+        },
+        {
+          "value": 15,
+          "suffix": "+",
+          "label": "People on the team"
+        }
+      ]
+    },
+    "showroom3d": {
+      "visible": true,
+      "badgeText": "SPATIAL SHOWCASE",
+      "title": "Interactive 3D",
+      "titleHighlight": "Showroom",
+      "description": "Navigate real-time spatial brand environments in full fidelity."
+    },
+    "portfolio": {
+      "visible": true,
+      "badgeText": "FILTER THE ARCHIVE",
+      "title": "Archive",
+      "titleHighlight": "of work",
+      "description": "Filter by sector, what the brand needed, or how loud the frame should be."
+    },
+    "dataStats": {
+      "visible": true,
+      "badgeText": "THE RECORD",
+      "title": "The archive,",
+      "titleHighlight": "in the open",
+      "description": "Years, shipped projects, clients, and how the work on this site is split across fields."
+    },
+    "services": {
+      "visible": true,
+      "badgeText": "WHAT THE STUDIO SHIPS",
+      "title": "From the brief to",
+      "titleHighlight": "the files",
+      "description": "Four offers. One stays on stage, and the line moves when the next one is ready."
+    },
+    "studioBoards": {
+      "visible": true,
+      "badgeText": "THE HOUSE REEL",
+      "title": "Marks in the light, then",
+      "titleHighlight": "the films",
+      "description": "Each mark steps into the center. The films below are split into production and the cut made for the feed."
+    },
+    "about": {
+      "visible": true,
+      "badgeText": "ABOUT B2B.",
+      "title": "A studio",
+      "titleHighlight": "for the next job",
+      "description": "B2B. is the studio for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social."
+    },
+    "contact": {
+      "visible": true,
+      "badgeText": "15-MINUTE CONSULT",
+      "title": "Send the brief",
+      "description": "Tell us the field, what you need, and what should change. The note opens in your mail app to bbagency@gmail.com.",
+      "consultTime": "15-MINUTE CONSULT",
+      "submitNote": "Your mail app will open with the note ready. Nothing is stored on this site."
+    }
+  },
+  "agency": {
+    "name": "B2B.",
+    "legal": "B2B.",
+    "former": "2 Agency",
+    "email": "bbagency@gmail.com",
+    "phone": "01020738348",
+    "phoneHref": "tel:+201020738348",
+    "whatsapp": "+20 10 20736348",
+    "whatsappHref": "https://wa.me/201020736348",
+    "facebook": "https://www.facebook.com/share/1DmzzWQXUU/",
+    "instagram": "https://www.instagram.com/b2b_markting",
+    "location": "Egypt",
+    "description": "B2B. is the studio for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social.",
+    "vision": "To be among the leading marketing and advertising companies in the Middle East, through creative work that uses innovation and current technology, and to be the first partner in a client's success.",
+    "mission": "Professional marketing and advertising that raise awareness of the brand and support growth, and that build a strong link between a company and its customers."
+  },
+  "whyUs": [
+    "A specialized team",
+    "Creative ideas",
+    "High quality in the files",
+    "Deadlines that hold",
+    "Integrated solutions",
+    "Follow-up that continues",
+    "Performance reports on a cycle",
+    "A scope set before the files"
+  ],
+  "studioServices": [
+    {
+      "index": "01",
+      "title": "Digital Marketing",
+      "tag": "FEED",
+      "text": "Offers, seasonal posts, and the supermarket set. The price and the brand stay in the same frame.",
+      "deliverables": [
+        "Offer posts",
+        "Seasonal set",
+        "Caption direction",
+        "Feed export"
+      ]
+    },
+    {
+      "index": "02",
+      "title": "Media Production",
+      "tag": "FRAME",
+      "text": "Clinic campaigns, logo films, and the frames that carry a name from the booth to the phone.",
+      "deliverables": [
+        "Key visual",
+        "Clinic set",
+        "Logo lockup",
+        "Booth frames"
+      ]
+    },
+    {
+      "index": "03",
+      "title": "Software Solutions",
+      "tag": "PRODUCT",
+      "text": "Product screens for the field and the clinic. Sanvix tracks visits. The Gobran clinic books the next slot.",
+      "deliverables": [
+        "Sanvix field app",
+        "Clinic booking",
+        "Admin and rep views",
+        "Handover screens"
+      ]
+    },
+    {
+      "index": "04",
+      "title": "AI Solutions",
+      "tag": "ASSIST",
+      "text": "An assistant inside the product. The clinic screen takes the symptoms and offers a next step.",
+      "deliverables": [
+        "Clinic assistant",
+        "Symptom prompt",
+        "Next-step screen",
+        "In-product placement"
+      ]
+    }
+  ],
+  "impact": [
+    {
+      "value": 4,
+      "suffix": "+",
+      "label": "Years of work"
+    },
+    {
+      "value": 100,
+      "suffix": "+",
+      "label": "Projects shipped"
+    },
+    {
+      "value": 150,
+      "suffix": "+",
+      "label": "Clients"
+    },
+    {
+      "value": 15,
+      "suffix": "+",
+      "label": "People on the team"
+    }
+  ],
+  "recipe": [
+    {
+      "step": "01",
+      "title": "Direction",
+      "text": "The audience, the season, and the one line the frame has to hold."
+    },
+    {
+      "step": "02",
+      "title": "Craft",
+      "text": "Identity, photography, and type. Each piece has to work alone and in the set."
+    },
+    {
+      "step": "03",
+      "title": "Release",
+      "text": "Files for the feed, the sign, and the booth. Ready on the morning they are needed."
+    }
+  ],
+  "marks": [
+    {
+      "name": "Sweet Home",
+      "src": "/work/marks/clear/sweet-home.png"
+    },
+    {
+      "name": "Chatilli Ghura",
+      "src": "/work/marks/clear/chatilli.png"
+    },
+    {
+      "name": "Allen X",
+      "src": "/work/marks/clear/allen-x.png"
+    },
+    {
+      "name": "Zain Store",
+      "src": "/work/marks/clear/zain.png"
+    },
+    {
+      "name": "Balasa",
+      "src": "/work/marks/clear/balasa.png"
+    },
+    {
+      "name": "Tohom",
+      "src": "/work/marks/clear/tohom.png"
+    },
+    {
+      "name": "Vitch Chocolate",
+      "src": "/work/marks/clear/vitch.png"
+    },
+    {
+      "name": "Sanvix",
+      "src": "/work/marks/clear/sanvix.png"
+    },
+    {
+      "name": "Blue Outlet",
+      "src": "/work/marks/clear/blue-outlet.png"
+    },
+    {
+      "name": "The Invest",
+      "src": "/work/marks/clear/the-invest.png"
+    },
+    {
+      "name": "Metro",
+      "src": "/work/marks/clear/metro.png"
+    },
+    {
+      "name": "Dr. Mahmoud Gobran",
+      "src": "/work/marks/clear/gobran.png"
+    }
+  ],
+  "filmPrograms": [
+    {
+      "id": "production",
+      "eyebrow": "PROJECT MEDIA PRODUCTION",
+      "title": "Shot for the brand",
+      "films": [
+        {
+          "src": "/work/media/prod-01.mp4",
+          "poster": "/work/media/posters/prod-01.jpg",
+          "title": "Chicken Hills",
+          "line": "The shopfront, from the street",
+          "wide": true
+        },
+        {
+          "src": "/work/media/prod-02.mp4",
+          "poster": "/work/media/posters/prod-02.jpg",
+          "title": "At the table",
+          "line": "A phone, a wallet, the street behind"
+        },
+        {
+          "src": "/work/media/prod-03.mp4",
+          "poster": "/work/media/posters/prod-03.jpg",
+          "title": "The counter",
+          "line": "Service, filmed across the glass",
+          "wide": true
+        },
+        {
+          "src": "/work/media/prod-04.mp4",
+          "poster": "/work/media/posters/prod-04.jpg",
+          "title": "On the road",
+          "line": "A presenter with the car in frame"
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "eyebrow": "SOCIAL CONTENT",
+      "title": "Cut for the feed",
+      "films": [
+        {
+          "src": "/work/media/reel-01.mp4",
+          "poster": "/work/media/posters/reel-01.jpg",
+          "title": "The balcony",
+          "line": "A phone, held in the open air"
+        },
+        {
+          "src": "/work/media/reel-02.mp4",
+          "poster": "/work/media/posters/reel-02.jpg",
+          "title": "Private universities",
+          "line": "A presenter, with the campus in frame"
+        },
+        {
+          "src": "/work/media/reel-03.mp4",
+          "poster": "/work/media/posters/reel-03.jpg",
+          "title": "The square",
+          "line": "The cafe, seen from above",
+          "wide": true
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "slug": "shark-care",
+      "title": "Shark Care",
+      "arabic": "شارك كير",
+      "sector": "auto",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "bold",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/shark-care/01.webp",
+        "/work/archive/shark-care/02.webp",
+        "/work/archive/shark-care/03.webp",
+        "/work/archive/shark-care/04.webp"
+      ],
+      "alt": "Shark Care greeting campaign over a lit city and mosque.",
+      "problem": "The brand needed a greeting that still read as Shark Care from across a feed.",
+      "solution": "Red calligraphy carries the occasion, and the partner marks sit on the road below.",
+      "keys": [
+        "shark",
+        "شارك",
+        "automotive",
+        "car",
+        "سيارات",
+        "eid",
+        "عيد",
+        "coating",
+        "bold",
+        "حملة",
+        "greeting"
+      ]
+    },
+    {
+      "slug": "tevo",
+      "title": "TEVO",
+      "arabic": "تيفو",
+      "sector": "auto",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "modern",
+        "calm"
+      ],
+      "images": [
+        "/work/archive/tevo/01.webp",
+        "/work/archive/tevo/02.webp",
+        "/work/archive/tevo/03.webp"
+      ],
+      "alt": "TEVO night campaign with a crescent, lanterns, and a blue car.",
+      "problem": "A protection brand can disappear inside a seasonal post.",
+      "solution": "The crescent, the lanterns, and the car share one night, so the brand stays in the frame.",
+      "keys": [
+        "tevo",
+        "تيفو",
+        "automotive",
+        "car",
+        "سيارات",
+        "night",
+        "crescent",
+        "eid",
+        "عيد",
+        "حملة"
+      ]
+    },
+    {
+      "slug": "onyx",
+      "title": "ONYX Coating",
+      "arabic": "أونيكس",
+      "sector": "auto",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "calm",
+        "bold"
+      ],
+      "images": [
+        "/work/archive/onyx/01.webp",
+        "/work/archive/onyx/02.webp",
+        "/work/archive/onyx/03.webp"
+      ],
+      "alt": "ONYX campaign with a dark SUV in front of a lit mosque.",
+      "problem": "The coating promise needed a picture people would stop on.",
+      "solution": "A dark SUV on wet stone, with the mosque holding the occasion behind it.",
+      "keys": [
+        "onyx",
+        "أونيكس",
+        "coating",
+        "suv",
+        "automotive",
+        "car",
+        "سيارات",
+        "eid",
+        "عيد",
+        "luxury"
+      ]
+    },
+    {
+      "slug": "protexa",
+      "title": "PROTEXA",
+      "arabic": "بروتكسا",
+      "sector": "auto",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "calm",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/protexa/01.webp",
+        "/work/archive/protexa/02.webp",
+        "/work/archive/protexa/03.webp",
+        "/work/archive/protexa/04.webp"
+      ],
+      "alt": "PROTEXA campaign with a black sedan beside stone arches.",
+      "problem": "The center needed a greeting that still looked like a paint-protection brand.",
+      "solution": "Evening stone, a black sedan, and a line that wishes the year well.",
+      "keys": [
+        "protexa",
+        "بروتكسا",
+        "paint",
+        "protection",
+        "sedan",
+        "mercedes",
+        "automotive",
+        "car",
+        "عيد",
+        "eid"
+      ]
+    },
+    {
+      "slug": "el-khateeb",
+      "title": "El-Khateeb",
+      "arabic": "الخطيب",
+      "sector": "auto",
+      "needs": [
+        "identity",
+        "social"
+      ],
+      "styles": [
+        "bold",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/el-khateeb/01.webp",
+        "/work/archive/el-khateeb/02.webp",
+        "/work/archive/el-khateeb/03.webp",
+        "/work/archive/el-khateeb/04.webp",
+        "/work/archive/el-khateeb/05.webp",
+        "/work/archive/el-khateeb/06.webp",
+        "/work/archive/el-khateeb/07.webp"
+      ],
+      "alt": "El-Khateeb automotive identity applied to social posts.",
+      "problem": "The name was known, and the posts still changed voice from one week to the next.",
+      "solution": "One identity system, then a social set that keeps the mark, the type, and the red.",
+      "keys": [
+        "khateeb",
+        "el-khateeb",
+        "الخطيب",
+        "identity",
+        "هوية",
+        "logo",
+        "شعار",
+        "automotive",
+        "social",
+        "brand"
+      ]
+    },
+    {
+      "slug": "teachsmart",
+      "title": "TeachSmart",
+      "arabic": "تيتش سمارت",
+      "sector": "education",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "modern",
+        "bold"
+      ],
+      "images": [
+        "/work/archive/teachsmart/01.webp",
+        "/work/archive/teachsmart/02.webp",
+        "/work/archive/teachsmart/03.webp",
+        "/work/archive/teachsmart/04.webp",
+        "/work/archive/teachsmart/05.webp",
+        "/work/archive/teachsmart/06.webp"
+      ],
+      "alt": "TeachSmart education posts for students and programs.",
+      "problem": "The school offer was split across too many tones.",
+      "solution": "A social set with one voice for programs, students, and the next intake.",
+      "keys": [
+        "teachsmart",
+        "teach",
+        "school",
+        "education",
+        "مدرسة",
+        "تعليم",
+        "students",
+        "admissions",
+        "قبول"
+      ]
+    },
+    {
+      "slug": "applied-school",
+      "title": "Applied School",
+      "arabic": "المدرسة التطبيقية",
+      "sector": "education",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "calm",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/applied-school/01.webp",
+        "/work/archive/applied-school/02.webp",
+        "/work/archive/applied-school/03.webp",
+        "/work/archive/applied-school/04.webp",
+        "/work/archive/applied-school/05.webp",
+        "/work/archive/applied-school/06.webp"
+      ],
+      "alt": "Applied School campaign posts.",
+      "problem": "Parents needed the school to look settled before they asked for a place.",
+      "solution": "Posts that explain the school in a calm frame, ready for the feed.",
+      "keys": [
+        "applied",
+        "school",
+        "education",
+        "مدرسة",
+        "تعليم",
+        "parents",
+        "طلاب",
+        "calm",
+        "admissions"
+      ]
+    },
+    {
+      "slug": "marhaba",
+      "title": "Marhaba",
+      "arabic": "مرحبا",
+      "sector": "education",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "bold",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/marhaba/01.webp",
+        "/work/archive/marhaba/02.webp",
+        "/work/archive/marhaba/03.webp",
+        "/work/archive/marhaba/04.webp",
+        "/work/archive/marhaba/05.webp",
+        "/work/archive/marhaba/06.webp"
+      ],
+      "alt": "Marhaba education and camp campaign.",
+      "problem": "The camp and the plan needed to feel like one place.",
+      "solution": "A bright set for the camp, the plan, and the welcome.",
+      "keys": [
+        "marhaba",
+        "مرحبا",
+        "camp",
+        "مخيم",
+        "education",
+        "تعليم",
+        "kids",
+        "أطفال",
+        "school"
+      ]
+    },
+    {
+      "slug": "new-era",
+      "title": "New Era",
+      "arabic": "نيو إيرا",
+      "sector": "realestate",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "modern",
+        "bold"
+      ],
+      "images": [
+        "/work/archive/new-era/01.webp",
+        "/work/archive/new-era/02.webp",
+        "/work/archive/new-era/03.webp"
+      ],
+      "alt": "New Era real estate campaign.",
+      "problem": "A new project needs a first picture that explains the offer.",
+      "solution": "A short campaign set that puts the project name and the offer in one frame.",
+      "keys": [
+        "new era",
+        "نيوعيرا",
+        "عقار",
+        "real estate",
+        "property",
+        "tower",
+        "launch",
+        "إطلاق"
+      ]
+    },
+    {
+      "slug": "aqar-expo",
+      "title": "Aqar Expo",
+      "arabic": "عقار إكسبو",
+      "sector": "realestate",
+      "needs": [
+        "campaign",
+        "identity"
+      ],
+      "styles": [
+        "modern",
+        "calm"
+      ],
+      "images": [
+        "/work/archive/aqar-expo/01.webp",
+        "/work/archive/aqar-expo/02.webp",
+        "/work/archive/aqar-expo/03.webp",
+        "/work/archive/aqar-expo/04.webp",
+        "/work/archive/aqar-expo/05.webp",
+        "/work/archive/aqar-expo/06.webp"
+      ],
+      "alt": "Aqar Expo campaign, including vision and location frames.",
+      "problem": "An expo lasts a few days, and the booth story has to travel before that.",
+      "solution": "Frames for the vision, the mission, and the location, built as one exhibition voice.",
+      "keys": [
+        "aqar",
+        "expo",
+        "عقار",
+        "إكسبو",
+        "exhibition",
+        "معرض",
+        "real estate",
+        "vision",
+        "booth"
+      ]
+    },
+    {
+      "slug": "rise-tower",
+      "title": "Rise Tower",
+      "arabic": "رايز تاور",
+      "sector": "realestate",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "calm",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/rise-tower/01.webp",
+        "/work/archive/rise-tower/02.webp",
+        "/work/archive/rise-tower/03.webp",
+        "/work/archive/rise-tower/04.webp",
+        "/work/archive/rise-tower/05.webp",
+        "/work/archive/rise-tower/06.webp"
+      ],
+      "alt": "Rise Tower residential campaign.",
+      "problem": "The tower was real, and the pictures did not yet say who it was for.",
+      "solution": "A campaign set built around the tower and the offer.",
+      "keys": [
+        "rise",
+        "tower",
+        "تاور",
+        "برج",
+        "عقار",
+        "real estate",
+        "luxury",
+        "فاخر",
+        "residential"
+      ]
+    },
+    {
+      "slug": "glory",
+      "title": "Glory",
+      "arabic": "جلوري",
+      "sector": "realestate",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "bold",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/glory/01.webp",
+        "/work/archive/glory/02.webp",
+        "/work/archive/glory/03.webp",
+        "/work/archive/glory/04.webp",
+        "/work/archive/glory/05.webp",
+        "/work/archive/glory/06.webp"
+      ],
+      "alt": "Glory real estate social campaign.",
+      "problem": "The name needed a picture system, not a single post.",
+      "solution": "A social run that keeps the Glory name in the same place on every frame.",
+      "keys": [
+        "glory",
+        "جلوري",
+        "real estate",
+        "عقار",
+        "gold",
+        "luxury",
+        "فاخر",
+        "social"
+      ]
+    },
+    {
+      "slug": "lux-realty",
+      "title": "Lux Realty",
+      "arabic": "لوكس ريالتي",
+      "sector": "realestate",
+      "needs": [
+        "campaign",
+        "identity"
+      ],
+      "styles": [
+        "calm",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/lux-realty/01.webp",
+        "/work/archive/lux-realty/02.webp",
+        "/work/archive/lux-realty/03.webp",
+        "/work/archive/lux-realty/04.webp",
+        "/work/archive/lux-realty/05.webp",
+        "/work/archive/lux-realty/06.webp"
+      ],
+      "alt": "Lux Realty property campaign.",
+      "problem": "Luxury copy was doing the work the pictures should do.",
+      "solution": "A property set where the picture leads and the mark stays in place.",
+      "keys": [
+        "lux",
+        "realty",
+        "luxury",
+        "فاخر",
+        "عقار",
+        "real estate",
+        "property",
+        "calm"
+      ]
+    },
+    {
+      "slug": "horizon",
+      "title": "Horizon",
+      "arabic": "هورايزون",
+      "sector": "places",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "modern",
+        "bold"
+      ],
+      "images": [
+        "/work/archive/horizon/01.webp",
+        "/work/archive/horizon/02.webp",
+        "/work/archive/horizon/03.webp",
+        "/work/archive/horizon/04.webp",
+        "/work/archive/horizon/05.webp",
+        "/work/archive/horizon/06.webp"
+      ],
+      "alt": "Horizon social campaign.",
+      "problem": "The series needed a repeatable frame without looking stamped.",
+      "solution": "A numbered social run with room for a new line in each post.",
+      "keys": [
+        "horizon",
+        "هورايزون",
+        "social",
+        "campaign",
+        "حملة",
+        "brand",
+        "modern"
+      ]
+    },
+    {
+      "slug": "calia",
+      "title": "Calia",
+      "arabic": "كاليا",
+      "sector": "places",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "calm",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/calia/01.webp",
+        "/work/archive/calia/02.webp",
+        "/work/archive/calia/03.webp",
+        "/work/archive/calia/04.webp",
+        "/work/archive/calia/05.webp",
+        "/work/archive/calia/06.webp"
+      ],
+      "alt": "Calia campaign, including a Mother's Day post.",
+      "problem": "Seasonal posts were drifting away from the brand color.",
+      "solution": "A soft set that can hold Mother's Day without changing the mark.",
+      "keys": [
+        "calia",
+        "كاليا",
+        "mother",
+        "عيد الأم",
+        "beauty",
+        "calm",
+        "social",
+        "حملة"
+      ]
+    },
+    {
+      "slug": "drago",
+      "title": "Drago",
+      "arabic": "دراجو",
+      "sector": "places",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "bold",
+        "modern"
+      ],
+      "images": [
+        "/work/archive/drago/01.webp",
+        "/work/archive/drago/02.webp",
+        "/work/archive/drago/03.webp",
+        "/work/archive/drago/04.webp",
+        "/work/archive/drago/05.webp",
+        "/work/archive/drago/06.webp"
+      ],
+      "alt": "Drago brand campaign.",
+      "problem": "A strong name still needs a picture people can place.",
+      "solution": "High-contrast frames that keep Drago loud and readable.",
+      "keys": [
+        "drago",
+        "دراجو",
+        "bold",
+        "brand",
+        "حملة",
+        "social",
+        "logo"
+      ]
+    },
+    {
+      "slug": "mas",
+      "title": "MAS",
+      "arabic": "ماس",
+      "sector": "places",
+      "needs": [
+        "campaign",
+        "social"
+      ],
+      "styles": [
+        "modern",
+        "bold"
+      ],
+      "images": [
+        "/work/archive/mas/01.webp",
+        "/work/archive/mas/02.webp",
+        "/work/archive/mas/03.webp",
+        "/work/archive/mas/04.webp",
+        "/work/archive/mas/05.webp",
+        "/work/archive/mas/06.webp"
+      ],
+      "alt": "MAS social campaign.",
+      "problem": "The feed needed a month of posts that still match.",
+      "solution": "A long social set with one structure and a changing subject.",
+      "keys": [
+        "mas",
+        "ماس",
+        "social",
+        "feed",
+        "حملة",
+        "brand",
+        "retail"
+      ]
+    }
+  ],
+  "footer": {
+    "logoUrl": "/brand/wordmark.png",
+    "description": "B2B. is the studio for digital marketing, media production, software, and AI product screens. The archive is shipped work: identities, campaigns, and social.",
+    "copyrightText": "© 2026 B2B. Formerly 2 Agency. Egypt.",
+    "links": [
+      {
+        "href": "#showcase-3d",
+        "label": "3D showroom"
+      },
+      {
+        "href": "#portfolio",
+        "label": "Portfolio"
+      },
+      {
+        "href": "#agency-data",
+        "label": "Data"
+      },
+      {
+        "href": "#services",
+        "label": "Services"
+      },
+      {
+        "href": "#contact",
+        "label": "Contact"
+      }
+    ],
+    "showBackToTop": true
+  }
+}

@@ -2,26 +2,31 @@
 
 import { BarChart3, Clock3, Gem, Layers3, Lightbulb, Mail, MapPin, MessagesSquare, Phone, Scale, Users } from "lucide-react";
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/site/SocialIcons";
-import { agency, whyUs } from "@/lib/content";
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
-const whyIcons = [Users, Lightbulb, Gem, Clock3, Layers3, MessagesSquare, BarChart3, Scale] as const;
+const whyIcons = [Users, Lightbulb, Gem, Clock3, Layers3, MessagesSquare, BarChart3, Scale];
 
 export function About() {
+  const { config } = useSiteConfig();
+  const sec = config.sections.about;
+  const agency = config.agency;
+  const whyUs = config.whyUs || [];
+
   return (
     <section id="about" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="grid items-start gap-10 lg:grid-cols-12">
         <div data-flow className="space-y-8 lg:col-span-7">
           <div>
             <div className="inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
-              ABOUT B2B.
+              {sec.badgeText || "ABOUT B2B."}
             </div>
             <h2 className="font-brand mt-4 text-3xl leading-tight font-black text-white md:text-5xl">
-              A studio
+              {sec.title || "A studio"}
               <br />
-              <span className="text-red-600">for the next job</span>
+              <span className="text-red-600">{sec.titleHighlight || "for the next job"}</span>
             </h2>
             <p className="mt-4 text-base leading-relaxed text-zinc-300 sm:text-lg">{agency.description}</p>
-            <p className="mt-2 text-sm text-zinc-500">Formerly {agency.former}.</p>
+            {agency.former && <p className="mt-2 text-sm text-zinc-500">Formerly {agency.former}.</p>}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <article className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5">
@@ -39,67 +44,81 @@ export function About() {
             <span className="text-xs font-bold text-red-500">STUDIO</span>
             <span className="h-2.5 w-2.5 rounded-full bg-red-600 shadow-[0_0_8px_#e50914]" />
           </div>
-          <img src="/brand/wordmark.png" alt="B2B. Marketing Agency" className="h-20 w-auto" />
+          <img src={config.header.logoUrl || "/brand/wordmark.png"} alt="B2B. Marketing Agency" className="h-20 w-auto" />
           <ul className="mt-6 space-y-4 text-sm text-zinc-300">
-            <li className="flex items-start gap-3">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-              {agency.location}
-            </li>
-            <li>
-              <a href={`mailto:${agency.email}`} className="flex items-start gap-3 hover:text-white">
-                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                {agency.email}
-              </a>
-            </li>
-            <li>
-              <a href={agency.phoneHref} className="flex items-start gap-3 hover:text-white">
-                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                {agency.phone}
-              </a>
-            </li>
-            <li>
-              <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
-                <WhatsAppIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                {agency.whatsapp}
-              </a>
-            </li>
-            <li>
-              <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
-                <FacebookIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                Facebook
-              </a>
-            </li>
-            <li>
-              <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
-                <InstagramIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                Instagram
-              </a>
-            </li>
+            {agency.location && (
+              <li className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                {agency.location}
+              </li>
+            )}
+            {agency.email && (
+              <li>
+                <a href={`mailto:${agency.email}`} className="flex items-start gap-3 hover:text-white">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  {agency.email}
+                </a>
+              </li>
+            )}
+            {agency.phone && (
+              <li>
+                <a href={agency.phoneHref || `tel:${agency.phone}`} className="flex items-start gap-3 hover:text-white">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  {agency.phone}
+                </a>
+              </li>
+            )}
+            {agency.whatsapp && (
+              <li>
+                <a href={agency.whatsappHref || `https://wa.me/${agency.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
+                  <WhatsAppIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  {agency.whatsapp}
+                </a>
+              </li>
+            )}
+            {agency.facebook && (
+              <li>
+                <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
+                  <FacebookIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  Facebook
+                </a>
+              </li>
+            )}
+            {agency.instagram && (
+              <li>
+                <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 hover:text-white">
+                  <InstagramIcon className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  Instagram
+                </a>
+              </li>
+            )}
           </ul>
         </aside>
       </div>
-      <div className="mt-14">
-        <h3 className="font-brand text-2xl font-black text-white md:text-3xl">Why this studio</h3>
-        <ol data-flow className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {whyUs.map((item, index) => {
-            const Icon = whyIcons[index];
-            return (
-              <li key={item} className="flex items-center gap-4 rounded-2xl border border-zinc-800 bg-[#0c0c10] px-4 py-4">
-                <span className="relative grid h-16 w-16 shrink-0 place-items-center [perspective:280px]">
-                  <span className="absolute bottom-1 h-2 w-10 rounded-full bg-black/80 blur-[1px]" />
-                  <span className="relative grid h-12 w-12 place-items-center rounded-xl border border-red-300/50 bg-gradient-to-br from-[#ff4d57] via-[#c1121f] to-[#4a0610] shadow-[inset_0_1px_0_rgba(255,255,255,0.55),4px_8px_0_#2a0508] [transform:rotateX(22deg)_rotateY(-24deg)]">
-                    <Icon className="h-5 w-5 text-white" strokeWidth={2.25} />
+      {whyUs.length > 0 && (
+        <div className="mt-14">
+          <h3 className="font-brand text-2xl font-black text-white md:text-3xl">Why this studio</h3>
+          <ol data-flow className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {whyUs.map((item, index) => {
+              const Icon = whyIcons[index % whyIcons.length];
+              return (
+                <li key={item || index} className="flex items-center gap-4 rounded-2xl border border-zinc-800 bg-[#0c0c10] px-4 py-4">
+                  <span className="relative grid h-16 w-16 shrink-0 place-items-center [perspective:280px]">
+                    <span className="absolute bottom-1 h-2 w-10 rounded-full bg-black/80 blur-[1px]" />
+                    <span className="relative grid h-12 w-12 place-items-center rounded-xl border border-red-300/50 bg-gradient-to-br from-[#ff4d57] via-[#c1121f] to-[#4a0610] shadow-[inset_0_1px_0_rgba(255,255,255,0.55),4px_8px_0_#2a0508] [transform:rotateX(22deg)_rotateY(-24deg)]">
+                      <Icon className="h-5 w-5 text-white" strokeWidth={2.25} />
+                    </span>
                   </span>
-                </span>
-                <span>
-                  <span className="font-brand text-xs text-red-500">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="mt-0.5 block text-sm font-semibold text-white">{item}</span>
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+                  <span>
+                    <span className="font-brand text-xs text-red-500">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="mt-0.5 block text-sm font-semibold text-white">{item}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,35 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { studioServices } from "@/lib/content";
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 export function Services() {
+  const { config } = useSiteConfig();
+  const sec = config.sections.services;
+  const servicesList = config.studioServices || [];
+
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  const service = studioServices[active];
+  const service = servicesList[active] || servicesList[0];
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || servicesList.length <= 1) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
     const timer = window.setInterval(() => {
-      setActive((current) => (current + 1) % studioServices.length);
+      setActive((current) => (current + 1) % servicesList.length);
     }, 4200);
     return () => window.clearInterval(timer);
-  }, [paused]);
+  }, [paused, servicesList.length]);
+
+  if (!service) return null;
 
   return (
     <section id="services" className="border-t border-zinc-900/80 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div data-flow className="mb-10 max-w-2xl">
           <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
-            WHAT THE STUDIO SHIPS
+            {sec.badgeText || "WHAT THE STUDIO SHIPS"}
           </div>
           <h2 className="font-brand text-3xl font-black text-white md:text-5xl">
-            From the brief to <span className="text-red-600">the files</span>
+            {sec.title || "From the brief to"}{" "}
+            <span className="text-red-600">{sec.titleHighlight || "the files"}</span>
           </h2>
           <p className="mt-3 text-sm text-zinc-400 md:text-base">
-            Four offers. One stays on stage, and the line moves when the next one is ready.
+            {sec.description || "Four offers. One stays on stage, and the line moves when the next one is ready."}
           </p>
         </div>
 
@@ -40,10 +47,10 @@ export function Services() {
           onMouseLeave={() => setPaused(false)}
         >
           <ol className="flex gap-3 overflow-x-auto lg:col-span-4 lg:flex-col lg:overflow-visible">
-            {studioServices.map((item, index) => {
+            {servicesList.map((item, index) => {
               const on = index === active;
               return (
-                <li key={item.title} className="min-w-[220px] flex-1 lg:min-w-0">
+                <li key={item.title || index} className="min-w-[220px] flex-1 lg:min-w-0">
                   <button
                     type="button"
                     onClick={() => setActive(index)}

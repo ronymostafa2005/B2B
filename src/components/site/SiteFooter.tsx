@@ -1,25 +1,31 @@
 "use client";
 
 import { ArrowUp } from "lucide-react";
-import { agency } from "@/lib/content";
 import { sound } from "@/lib/sound";
-
-const links = [
-  { href: "#showcase-3d", label: "3D showroom" },
-  { href: "#portfolio", label: "Portfolio" },
-  { href: "#agency-data", label: "Data" },
-  { href: "#services", label: "Services" },
-  { href: "#contact", label: "Contact" },
-];
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 export function SiteFooter() {
+  const { config } = useSiteConfig();
+  const agency = config.agency;
+  const footer = config.footer;
+  const logoUrl = footer?.logoUrl || "/brand/wordmark.png";
+  const description = footer?.description || agency.description;
+  const copyright = footer?.copyrightText || `© ${new Date().getFullYear()} B2B. Formerly ${agency.former}. ${agency.location}.`;
+  const links = footer?.links || [
+    { href: "#showcase-3d", label: "3D showroom" },
+    { href: "#portfolio", label: "Portfolio" },
+    { href: "#agency-data", label: "Data" },
+    { href: "#services", label: "Services" },
+    { href: "#contact", label: "Contact" },
+  ];
+
   return (
     <footer className="border-t border-zinc-900 bg-black px-4 py-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col items-start justify-between gap-8 border-b border-zinc-900 pb-10 md:flex-row md:items-center">
           <div>
-            <img src="/brand/wordmark.png" alt="B2B. Marketing Agency" className="h-16 w-auto" />
-            <p className="mt-2 max-w-sm text-xs text-zinc-400">{agency.description}</p>
+            <img src={logoUrl} alt="B2B. Marketing Agency" className="h-16 w-auto" />
+            <p className="mt-2 max-w-sm text-xs text-zinc-400">{description}</p>
           </div>
           <div className="flex flex-wrap gap-5 text-xs text-zinc-400">
             {links.map((item) => (
@@ -28,38 +34,48 @@ export function SiteFooter() {
               </a>
             ))}
           </div>
-          <button
-            type="button"
-            aria-label="Back to top"
-            onClick={() => {
-              sound.playClick();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className="rounded-full border border-zinc-800 bg-zinc-900 p-3 text-zinc-300 hover:text-white"
-          >
-            <ArrowUp className="h-4 w-4" />
-          </button>
+          {footer?.showBackToTop !== false && (
+            <button
+              type="button"
+              aria-label="Back to top"
+              onClick={() => {
+                sound.playClick();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="rounded-full border border-zinc-800 bg-zinc-900 p-3 text-zinc-300 hover:text-white"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </button>
+          )}
         </div>
         <div className="flex flex-col items-start justify-between gap-3 pt-6 text-xs text-zinc-500 sm:flex-row sm:items-center">
-          <p>
-            © {new Date().getFullYear()} B2B. Formerly {agency.former}. {agency.location}.
-          </p>
+          <p>{copyright}</p>
           <div className="flex flex-wrap gap-4">
-            <a href={`mailto:${agency.email}`} className="hover:text-red-400">
-              {agency.email}
-            </a>
-            <a href={agency.phoneHref} className="hover:text-red-400">
-              {agency.phone}
-            </a>
-            <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
-              WhatsApp
-            </a>
-            <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
-              Facebook
-            </a>
-            <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
-              Instagram
-            </a>
+            {agency.email && (
+              <a href={`mailto:${agency.email}`} className="hover:text-red-400">
+                {agency.email}
+              </a>
+            )}
+            {agency.phone && (
+              <a href={agency.phoneHref || `tel:${agency.phone}`} className="hover:text-red-400">
+                {agency.phone}
+              </a>
+            )}
+            {agency.whatsappHref && (
+              <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+                WhatsApp
+              </a>
+            )}
+            {agency.facebook && (
+              <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+                Facebook
+              </a>
+            )}
+            {agency.instagram && (
+              <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+                Instagram
+              </a>
+            )}
           </div>
         </div>
       </div>

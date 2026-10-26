@@ -3,31 +3,42 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, Search } from "lucide-react";
-import { filterProjects, matchBrief, prompts, projects, sectors, studioFrames, styles, type Project, type SectorId, type StyleFilter } from "@/lib/content";
+import { prompts, sectors, studioFrames, styles, type Project, type SectorId, type StyleFilter } from "@/lib/content";
 import { sound } from "@/lib/sound";
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: Project) => void }) {
+  const { config } = useSiteConfig();
+  const portfolioSection = config.sections.portfolio;
+  const allProjects = (config.projects as unknown as Project[]) || [];
+
   const [sector, setSector] = useState<SectorId>("all");
   const [tone, setTone] = useState<StyleFilter>("all");
   const [query, setQuery] = useState("");
   const [reasons, setReasons] = useState<Record<string, string>>({});
 
   const visible = useMemo(() => {
-    const base = filterProjects(sector, "all", tone);
-    const text = query.trim().toLowerCase();
-    if (!text) return base;
-    return base.filter((project) =>
-      [project.title, project.solution, project.problem, project.sector, ...project.keys, ...project.needs]
+    return allProjects.filter((project) => {
+      const sectorOk = sector === "all" || project.sector === sector;
+      const toneOk = tone === "all" || project.styles.includes(tone as unknown as typeof project.styles[number]);
+      if (!sectorOk || !toneOk) return false;
+
+      const text = query.trim().toLowerCase();
+      if (!text) return true;
+      return [project.title, project.arabic, project.solution, project.problem, project.sector, ...(project.keys || []), ...(project.needs || [])]
         .join(" ")
         .toLowerCase()
-        .includes(text),
-    );
-  }, [query, sector, tone]);
+        .includes(text);
+    });
+  }, [allProjects, query, sector, tone]);
 
   function runBrief(text: string) {
     setQuery(text);
-    const hits = matchBrief(text);
-    setReasons(Object.fromEntries(hits.map((hit) => [hit.slug, hit.reason])));
+    const tokens = text.toLowerCase().split(/\s+/);
+    const hits = allProjects.filter((p) =>
+      tokens.some((t) => [p.title, p.arabic, p.problem, p.solution, ...(p.keys || [])].join(" ").toLowerCase().includes(t))
+    );
+    setReasons(Object.fromEntries(hits.map((hit) => [hit.slug, hit.solution])));
     sound.playSuccess();
   }
 
@@ -36,13 +47,14 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
       <div data-flow className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
-            SELECTED CASE STUDIES
+            {portfolioSection.badgeText || "SELECTED CASE STUDIES"}
           </div>
           <h2 className="font-brand text-3xl font-black text-white md:text-5xl">
-            The <span className="text-red-600">archive</span>
+            {portfolioSection.title || "The"}{" "}
+            <span className="text-red-600">{portfolioSection.titleHighlight || "archive"}</span>
           </h2>
           <p className="mt-2 max-w-xl text-sm text-zinc-400 md:text-base">
-            {projects.length} shipped campaigns and identities. Search a brief and the reader puts the closest work first.
+            {allProjects.length} shipped campaigns and identities. Search a brief and the reader puts the closest work first.
           </p>
         </div>
         <label className="relative w-full md:w-80">
@@ -168,7 +180,7 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
                 </span>
               </span>
               <span className="absolute top-3 left-3 rounded-full border border-white/10 px-2.5 py-1 text-[10px] tracking-[0.18em] text-zinc-400 uppercase">
-                {sectors.find((item) => item.id === project.sector)?.label}
+                {sectors.find((item) => item.id === project.sector)?.label || project.sector}
               </span>
               <span className="absolute right-3 bottom-3 text-zinc-500 opacity-0 transition duration-300 group-hover:text-zinc-200 group-hover:opacity-100">
                 <ArrowUpRight className="h-4 w-4" />

@@ -1,12 +1,16 @@
 "use client";
 
 import { Box, Layers, Sparkles } from "lucide-react";
-import { agency, impact, projects } from "@/lib/content";
 import { sound } from "@/lib/sound";
-
-const fields = ["Automotive", "schools", "places", "brands"];
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 export function Hero() {
+  const { config } = useSiteConfig();
+  const hero = config.sections.hero;
+  const impact = config.impact;
+  const projectCount = config.projects.length;
+  const fields = hero.fields || ["Automotive", "schools", "places", "brands"];
+
   function scrollTo(id: string) {
     sound.playClick();
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -19,21 +23,27 @@ export function Hero() {
         <div data-flow className="space-y-6 text-center lg:col-span-12 lg:text-left">
           <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-4 py-1.5 text-xs text-red-400 shadow-[0_0_15px_rgba(229,9,20,0.3)]">
             <Sparkles className="h-3.5 w-3.5 text-red-500" />
-            <span>B2B. creative studio · identities, campaigns, social</span>
+            <span>{hero.badgeText}</span>
           </div>
           <h1 className="font-brand text-4xl leading-[1.05] font-black tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
-            Work that{" "}
-            <span className="text-red-600 whitespace-nowrap drop-shadow-[0_0_35px_rgba(229,9,20,0.8)]">holds the frame</span>
+            {hero.titleLead}{" "}
+            <span className="text-red-600 whitespace-nowrap drop-shadow-[0_0_35px_rgba(229,9,20,0.8)]">
+              {hero.titleHighlight}
+            </span>
           </h1>
           <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-brand text-3xl leading-none font-black text-white italic sm:gap-x-4 sm:text-5xl lg:justify-start lg:text-6xl">
             {fields.map((field, index) => (
               <span key={field} className="inline-flex items-center gap-3 sm:gap-4">
-                {index > 0 ? <span className="h-2 w-2 shrink-0 rounded-full bg-red-600 shadow-[0_0_10px_#e50914]" aria-hidden="true" /> : null}
+                {index > 0 ? (
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-red-600 shadow-[0_0_10px_#e50914]" aria-hidden="true" />
+                ) : null}
                 {field}
               </span>
             ))}
           </p>
-          <p className="mx-auto max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg lg:mx-0">{agency.description}</p>
+          <p className="mx-auto max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg lg:mx-0">
+            {hero.description}
+          </p>
           <div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row lg:justify-start">
             <button
               type="button"
@@ -41,7 +51,7 @@ export function Hero() {
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-8 py-3.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(229,9,20,0.6)] hover:bg-red-700 sm:w-auto sm:text-base"
             >
               <Box className="h-5 w-5" />
-              Enter the 3D showroom
+              {hero.btnShowroomText}
             </button>
             <button
               type="button"
@@ -49,7 +59,7 @@ export function Hero() {
               className="flex w-full items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/90 px-8 py-3.5 text-sm font-semibold text-zinc-200 hover:border-zinc-700 hover:text-white sm:w-auto sm:text-base"
             >
               <Layers className="h-4 w-4 text-red-500" />
-              Browse the archive ({projects.length} works)
+              {hero.btnArchiveText} ({projectCount} works)
             </button>
           </div>
         </div>

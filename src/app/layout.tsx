@@ -38,6 +38,8 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
+import { SiteConfigProvider } from "@/context/SiteConfigContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -46,7 +48,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${brand.variable} ${sans.variable}`}>
       <body className="bg-[#070709] text-[#F3F4F6] antialiased">
-        <SiteFrame>{children}</SiteFrame>
+        <SiteConfigProvider>
+          <SiteFrame>{children}</SiteFrame>
+        </SiteConfigProvider>
       </body>
     </html>
   );

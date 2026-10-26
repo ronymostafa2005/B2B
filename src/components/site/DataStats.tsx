@@ -1,22 +1,28 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { impact, projects, recipe, sectors } from "@/lib/content";
+import { recipe, sectors } from "@/lib/content";
 import { sound } from "@/lib/sound";
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 const colors = ["#E50914", "#F59E0B", "#6366F1", "#10B981", "#EC4899"];
 
 export function DataStats() {
+  const { config } = useSiteConfig();
+  const sec = config.sections.dataStats;
+  const impactList = config.impact;
+  const projectList = config.projects;
+
   const [tab, setTab] = useState<"kpi" | "fields" | "build">("kpi");
   const [on, setOn] = useState(false);
   const fields = sectors
     .filter((item) => item.id !== "all")
     .map((item, index) => {
-      const count = projects.filter((project) => project.sector === item.id).length;
+      const count = projectList.filter((project) => project.sector === item.id).length;
       return {
         label: item.label,
         count,
-        pct: Math.round((count / projects.length) * 100),
+        pct: projectList.length ? Math.round((count / projectList.length) * 100) : 0,
         color: colors[index % colors.length],
       };
     });
@@ -38,13 +44,13 @@ export function DataStats() {
     <section id="agency-data" data-flow className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto mb-12 max-w-3xl text-center">
         <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
-          THE RECORD
+          {sec.badgeText || "THE RECORD"}
         </div>
         <h2 className="font-brand text-3xl font-black text-white md:text-5xl">
-          The archive, <span className="text-red-600">in the open</span>
+          {sec.title || "The archive,"} <span className="text-red-600">{sec.titleHighlight || "in the open"}</span>
         </h2>
         <p className="mt-3 text-sm text-zinc-400 md:text-base">
-          Years, shipped projects, clients, and how the work on this site is split across fields.
+          {sec.description || "Years, shipped projects, clients, and how the work on this site is split across fields."}
         </p>
         <div className="mt-8 inline-flex flex-wrap justify-center gap-1 rounded-2xl border border-zinc-800 bg-zinc-900/90 p-1.5">
           {(
@@ -73,7 +79,7 @@ export function DataStats() {
 
       {tab === "kpi" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {impact.map((item) => (
+          {impactList.map((item) => (
             <article key={item.label} className="rounded-2xl border border-zinc-800/80 bg-[#0c0c10] p-6 transition hover:-translate-y-1 hover:border-red-500/50">
               <div className="font-brand text-4xl font-black text-white sm:text-5xl">
                 <Count to={item.value} run={on} />
@@ -90,7 +96,7 @@ export function DataStats() {
           <div className="space-y-4">
             <h3 className="font-brand text-2xl font-bold text-white">Share of the archive</h3>
             <p className="text-sm text-zinc-400">
-              {projects.length} cases on this site, counted by the field they were made for.
+              {projectList.length} cases on this site, counted by the field they were made for.
             </p>
             {fields.map((item) => (
               <div key={item.label}>
@@ -134,7 +140,7 @@ export function DataStats() {
                 ).nodes}
               </svg>
               <div className="absolute text-center">
-                <div className="font-brand text-3xl font-black text-white">{projects.length}</div>
+                <div className="font-brand text-3xl font-black text-white">{projectList.length}</div>
                 <div className="text-[11px] text-zinc-400">cases</div>
               </div>
             </div>

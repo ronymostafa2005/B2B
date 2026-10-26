@@ -1,0 +1,139 @@
+
+> b2b-portfolio@0.1.0 dev
+> next dev
+
+▲ Next.js 16.4.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.2:3000
+✓ Ready in 1358ms
+✓ Running next.config.ts took 87ms
+
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+Image with src "/work/posters/market-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/market-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/market-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/market-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/clinic-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/clinic-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/clinic-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "/work/posters/clinic-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET / 200 in 1052ms (next.js: 401ms, application-code: 651ms)
+[browser] Image with src "/work/posters/market-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /api/site-config 200 in 215ms (next.js: 163ms, application-code: 52ms)
+ GET /api/site-config 200 in 20ms (next.js: 4ms, application-code: 16ms)
+ GET /api/auth/session 401 in 101ms (next.js: 87ms, application-code: 14ms)
+ GET /api/auth/session 401 in 15ms (next.js: 3ms, application-code: 11ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+ GET /admin/sections/welcome 404 in 1682ms (next.js: 1424ms, application-code: 257ms)
+ GET /api/site-config 200 in 76ms (next.js: 4ms, application-code: 72ms)
+ GET /api/site-config 200 in 34ms (next.js: 7ms, application-code: 26ms)
+ GET /api/auth/session 401 in 28ms (next.js: 5ms, application-code: 24ms)
+ GET /api/auth/session 401 in 20ms (next.js: 7ms, application-code: 13ms)
+ GET /admin 307 in 156ms (next.js: 33ms, application-code: 123ms)
+ GET /admin/login 200 in 175ms (next.js: 11ms, application-code: 164ms)
+ GET /api/site-config 200 in 30ms (next.js: 4ms, application-code: 26ms)
+ GET /api/site-config 200 in 50ms (next.js: 7ms, application-code: 43ms)
+ GET /api/auth/session 401 in 21ms (next.js: 3ms, application-code: 18ms)
+ GET /api/auth/session 401 in 15ms (next.js: 3ms, application-code: 12ms)
+ POST /api/auth/login 200 in 82ms (next.js: 62ms, application-code: 20ms)
+ GET /admin 200 in 264ms (next.js: 2ms, application-code: 262ms)
+ GET /api/site-config 200 in 23ms (next.js: 4ms, application-code: 18ms)
+ GET /api/site-config 200 in 21ms (next.js: 6ms, application-code: 14ms)
+ GET /api/auth/session 200 in 26ms (next.js: 12ms, application-code: 14ms)
+ GET /api/auth/session 200 in 17ms (next.js: 3ms, application-code: 14ms)
+ POST /api/admin/config 200 in 102ms (next.js: 74ms, application-code: 28ms)
+ GET / 200 in 245ms (next.js: 2ms, application-code: 242ms)
+[browser] Image with src "/work/posters/market-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /api/auth/session 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /api/site-config 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/site-config 200 in 30ms (next.js: 3ms, application-code: 27ms)
+ GET /api/auth/session 200 in 40ms (next.js: 6ms, application-code: 34ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+ POST /api/admin/config 200 in 49ms (next.js: 2.0ms, application-code: 47ms)
+ GET / 200 in 2.2s (next.js: 18ms, application-code: 2.2s)
+[browser] Image with src "/work/posters/market-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /api/site-config 200 in 41ms (next.js: 5ms, application-code: 36ms)
+ GET /api/auth/session 200 in 13ms (next.js: 2ms, application-code: 10ms)
+ GET /api/site-config 200 in 13ms (next.js: 2ms, application-code: 11ms)
+ GET /api/auth/session 200 in 13ms (next.js: 3ms, application-code: 11ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+ POST /api/admin/config 200 in 22ms (next.js: 2ms, application-code: 20ms)
+ GET / 200 in 338ms (next.js: 7ms, application-code: 331ms)
+[browser] Image with src "/work/posters/market-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/market-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-01.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-02.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-03.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[browser] Image with src "/work/posters/clinic-04.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /api/site-config 200 in 25ms (next.js: 4ms, application-code: 21ms)
+ GET /api/auth/session 200 in 22ms (next.js: 3ms, application-code: 20ms)
+ GET /api/site-config 200 in 24ms (next.js: 10ms, application-code: 14ms)
+ GET /api/auth/session 200 in 29ms (next.js: 9ms, application-code: 20ms)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)
+[browser] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. (src/components/site/ThreeShowcase.tsx:240:19)

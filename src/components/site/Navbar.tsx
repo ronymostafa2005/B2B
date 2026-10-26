@@ -2,20 +2,20 @@
 
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { agency } from "@/lib/content";
 import { sound } from "@/lib/sound";
 import { WhatsAppIcon } from "@/components/site/SocialIcons";
-
-const links = [
-  { href: "#showcase-3d", label: "3D Spatial" },
-  { href: "#portfolio", label: "Portfolio" },
-  { href: "#agency-data", label: "Data Impact" },
-  { href: "#services", label: "Services" },
-  { href: "#about", label: "About" },
-];
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 export function Navbar() {
+  const { config } = useSiteConfig();
   const [open, setOpen] = useState(false);
+
+  const links = (config.header?.navLinks || []).filter((l) => l.visible !== false);
+  const logoUrl = config.header?.logoUrl || "/brand/wordmark.png";
+  const logoAlt = config.header?.logoAlt || "B2B. Marketing Agency";
+  const showWhatsapp = config.header?.whatsappCta?.show !== false;
+  const whatsappLabel = config.header?.whatsappCta?.label || "WhatsApp";
+  const whatsappHref = config.agency?.whatsappHref || "https://wa.me/201020736348";
 
   function go(href: string) {
     sound.playClick();
@@ -39,8 +39,8 @@ export function Navbar() {
           className="group flex items-center"
         >
           <img
-            src="/brand/wordmark.png"
-            alt="B2B. Marketing Agency"
+            src={logoUrl}
+            alt={logoAlt}
             className="h-10 w-auto transition-transform group-hover:scale-105 sm:h-12"
           />
         </a>
@@ -62,16 +62,18 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-          <a
-            href={agency.whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => sound.playClick()}
-            className="hidden items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(229,9,20,0.4)] hover:bg-red-700 sm:flex"
-          >
-            <WhatsAppIcon className="h-3.5 w-3.5" />
-            WhatsApp
-          </a>
+          {showWhatsapp && (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => sound.playClick()}
+              className="hidden items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(229,9,20,0.4)] hover:bg-red-700 sm:flex"
+            >
+              <WhatsAppIcon className="h-3.5 w-3.5" />
+              {whatsappLabel}
+            </a>
+          )}
           <button
             type="button"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -102,19 +104,21 @@ export function Navbar() {
               {item.label}
             </a>
           ))}
-          <a
-            href={agency.whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => {
-              sound.playClick();
-              setOpen(false);
-            }}
-            className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-xs font-bold text-white"
-          >
-            <WhatsAppIcon className="h-4 w-4" />
-            WhatsApp
-          </a>
+          {showWhatsapp && (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                sound.playClick();
+                setOpen(false);
+              }}
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-xs font-bold text-white"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+              {whatsappLabel}
+            </a>
+          )}
         </div>
       ) : null}
     </nav>

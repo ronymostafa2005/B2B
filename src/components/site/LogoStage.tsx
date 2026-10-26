@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { marks } from "@/lib/content";
+import { marks as defaultMarks } from "@/lib/content";
+import { useSiteConfig } from "@/context/SiteConfigContext";
 
 function wrapOffset(index: number, active: number, count: number) {
   let offset = index - active;
@@ -11,12 +12,15 @@ function wrapOffset(index: number, active: number, count: number) {
 }
 
 export function LogoStage() {
+  const { config } = useSiteConfig();
+  const marks = (config.marks && config.marks.length > 0) ? config.marks : defaultMarks;
+
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = marks.length;
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || count <= 1) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
     const timer = window.setInterval(() => {
@@ -24,6 +28,9 @@ export function LogoStage() {
     }, 2200);
     return () => window.clearInterval(timer);
   }, [count, paused]);
+
+  if (count === 0) return null;
+  const currentMark = marks[active] || marks[0];
 
   return (
     <div
@@ -40,7 +47,7 @@ export function LogoStage() {
           if (distance > 3) return null;
           return (
             <button
-              key={mark.src}
+              key={mark.src + index}
               type="button"
               onClick={() => setActive(index)}
               aria-label={mark.name}
@@ -57,12 +64,12 @@ export function LogoStage() {
         })}
       </div>
       <p className="font-brand mt-2 text-center text-xl font-bold text-white" aria-live="polite">
-        {marks[active].name}
+        {currentMark.name}
       </p>
       <div className="mt-4 flex justify-center gap-1.5">
         {marks.map((mark, index) => (
           <button
-            key={mark.src}
+            key={mark.src + index}
             type="button"
             aria-label={`Show ${mark.name}`}
             onClick={() => setActive(index)}
