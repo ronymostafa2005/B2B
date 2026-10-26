@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifySessionToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 import { getSiteConfig, saveSiteConfig } from "@/lib/config-storage";
 
@@ -23,6 +24,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const updated = await saveSiteConfig(body);
+
+    // Invalidate Next.js cache for the entire site
+    revalidatePath("/", "layout");
+
     return NextResponse.json({ success: true, config: updated, message: "Changes saved successfully" });
   } catch (error) {
     console.error("Failed to save config:", error);

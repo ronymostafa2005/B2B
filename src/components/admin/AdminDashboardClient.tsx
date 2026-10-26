@@ -87,6 +87,21 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
     }, 4500);
   };
 
+  const notifySiteTabs = () => {
+    try {
+      if (typeof window !== "undefined") {
+        if ("BroadcastChannel" in window) {
+          const ch = new BroadcastChannel("b2b_site_sync");
+          ch.postMessage({ type: "CONFIG_UPDATED", time: Date.now() });
+          ch.close();
+        }
+        localStorage.setItem("b2b_config_updated_at", Date.now().toString());
+      }
+    } catch (e) {
+      console.warn("Cross-tab sync error:", e);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -101,7 +116,8 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
         notify("error", data.error || "Failed to save changes");
       } else {
         setConfig(data.config);
-        notify("success", "All changes saved successfully! The site has been updated instantly.");
+        notifySiteTabs();
+        notify("success", "All changes saved! Site updated and refreshed across all tabs.");
       }
     } catch {
       notify("error", "A server error occurred while saving changes");
@@ -120,6 +136,7 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
       const data = await res.json();
       if (res.ok && data.success) {
         setConfig(data.config);
+        notifySiteTabs();
         notify("success", "Original settings have been restored successfully");
       } else {
         notify("error", "Restore operation failed");

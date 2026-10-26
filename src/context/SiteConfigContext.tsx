@@ -62,6 +62,33 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
 
     // Refresh config from API to get any latest edits
     refreshConfig();
+
+    // Listen for live updates from admin dashboard in any tab
+    let channel: BroadcastChannel | null = null;
+    if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+      try {
+        channel = new BroadcastChannel("b2b_site_sync");
+        channel.onmessage = (event) => {
+          if (event.data?.type === "CONFIG_UPDATED") {
+            refreshConfig();
+          }
+        };
+      } catch (e) {
+        console.warn("BroadcastChannel not supported", e);
+      }
+    }
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "b2b_config_updated_at") {
+        refreshConfig();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   // Compute Google Fonts stylesheet URL

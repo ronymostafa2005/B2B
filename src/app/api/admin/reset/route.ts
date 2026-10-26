@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifySessionToken, AUTH_COOKIE_NAME } from "@/lib/auth";
 import { resetSiteConfig } from "@/lib/config-storage";
 
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const config = await resetSiteConfig();
+    revalidatePath("/", "layout");
     return NextResponse.json({ success: true, config, message: "Settings restored to defaults successfully" });
   } catch (error) {
     console.error("Failed to reset config:", error);
