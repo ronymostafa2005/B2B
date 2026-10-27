@@ -62,8 +62,8 @@ export function SiteIntro() {
                 className="intro-row flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3"
                 style={{ animationDelay: `${index * 160}ms` }}
               >
-                <span className="font-brand text-sm text-red-500">{service.index}</span>
-                <span className="h-px flex-1 bg-gradient-to-r from-red-600/80 to-transparent" />
+                <span className="font-brand text-sm text-[var(--brand)]">{service.index}</span>
+                <span className="h-px flex-1 bg-gradient-to-r from-[var(--brand-soft)] to-transparent" />
                 <span className="font-brand text-lg text-white sm:text-2xl">{service.title}</span>
                 <span className="hidden text-[10px] tracking-[0.22em] text-zinc-500 uppercase sm:inline">{service.tag}</span>
               </li>

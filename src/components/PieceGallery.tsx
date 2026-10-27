@@ -66,7 +66,7 @@ export function PieceGallery({ images, alt }: { images: string[]; alt: string })
                 Previous
               </button>
             ) : null}
-            <button type="button" className="rounded-full bg-red-600 px-4 py-2 text-sm text-white" onClick={() => setIndex(null)}>
+            <button type="button" className="rounded-full bg-[var(--brand)] px-4 py-2 text-sm text-white" onClick={() => setIndex(null)}>
               Close
             </button>
             {images.length > 1 ? (

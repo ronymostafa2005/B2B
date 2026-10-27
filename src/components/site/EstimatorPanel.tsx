@@ -45,15 +45,15 @@ export function EstimatorPanel() {
   }
 
   return (
-    <section id="estimator" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-      <div data-flow className="rounded-3xl border border-red-950/60 bg-gradient-to-b from-[#100809] via-[#0c0c10] to-[#070709] p-5 shadow-[0_20px_60px_rgba(229,9,20,0.15)] sm:p-10">
+    <section id="estimator" className="mx-auto max-w-7xl border-t border-[var(--line-soft)] band px-4 sm:px-6 lg:px-8">
+      <div data-flow className="rounded-3xl border border-[var(--brand-line)] bg-gradient-to-b from-[#100809] via-[#0c0c10] to-[#070709] p-5 shadow-[0_20px_60px_var(--brand-glow)] sm:p-10">
         <div className="mx-auto mb-10 max-w-2xl text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-600/20 px-3 py-1 text-xs text-red-400">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--brand-line)] bg-[var(--brand-soft)] px-3 py-1 text-xs text-[var(--brand)]">
             <Calculator className="h-3.5 w-3.5" />
             PROJECT RANGE
           </div>
           <h2 className="font-brand text-3xl font-black text-white md:text-4xl">
-            A starting range for <span className="text-red-600">the next job</span>
+            A starting range for <span className="text-[var(--brand)]">the next job</span>
           </h2>
           <p className="mt-2 text-sm text-zinc-400">The range is a guide. The free call sets the number.</p>
         </div>
@@ -67,7 +67,7 @@ export function EstimatorPanel() {
             <p className="text-xs tracking-wider text-zinc-500 uppercase">Starting range</p>
             <p className="font-brand mt-3 text-3xl font-black text-white sm:text-4xl" aria-live="polite">
               {money(low)}
-              <span className="mt-1 block text-xl text-red-500 sm:text-2xl">to {money(high)}</span>
+              <span className="mt-1 block text-xl text-[var(--brand)] sm:text-2xl">to {money(high)}</span>
             </p>
             <p className="mt-4 text-sm text-zinc-400">
               {fieldLabel} · {kindLabel} · {sizeLabel}
@@ -75,7 +75,7 @@ export function EstimatorPanel() {
             <button
               type="button"
               onClick={book}
-              className="mt-6 w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(229,9,20,0.45)] hover:bg-red-700"
+              className="mt-6 w-full rounded-xl bg-[var(--brand)] py-3 text-sm font-bold text-[var(--brand-contrast)] shadow-[0_0_20px_var(--brand-glow)] hover:bg-[var(--brand)]"
             >
               Put this range in the brief
             </button>
@@ -111,7 +111,7 @@ function Picker<T extends string>({
               sound.playClick();
             }}
             className={`rounded-xl border px-3 py-3 text-left text-sm ${
-              value === option.id ? "border-red-500 bg-red-600/20 font-bold text-white" : "border-zinc-800 bg-zinc-900/80 text-zinc-400"
+              value === option.id ? "border-[var(--brand)] bg-[var(--brand-soft)] font-bold text-white" : "border-zinc-800 bg-zinc-900/80 text-zinc-400"
             }`}
           >
             {option.label}

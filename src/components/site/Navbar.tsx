@@ -59,7 +59,7 @@ export function Navbar() {
                 event.preventDefault();
                 go(item.href);
               }}
-              className="hover:text-red-500"
+              className="hover:text-[var(--brand)]"
             >
               {item.label}
             </a>
@@ -73,7 +73,7 @@ export function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => sound.playClick()}
-              className="hidden items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(229,9,20,0.4)] hover:bg-red-700 sm:flex"
+              className="hidden items-center gap-1.5 rounded-xl bg-[var(--brand)] px-4 py-2 text-sm font-bold text-[var(--brand-contrast)] shadow-[0_0_15px_var(--brand-glow)] hover:bg-[var(--brand)] sm:flex"
             >
               <WhatsAppIcon className="h-3.5 w-3.5" />
               {whatsappLabel}
@@ -104,7 +104,7 @@ export function Navbar() {
                 event.preventDefault();
                 go(item.href);
               }}
-              className="block py-2 text-sm font-medium text-zinc-300 hover:text-red-500"
+              className="block py-2 text-sm font-medium text-zinc-300 hover:text-[var(--brand)]"
             >
               {item.label}
             </a>
@@ -118,7 +118,7 @@ export function Navbar() {
                 sound.playClick();
                 setOpen(false);
               }}
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-xs font-bold text-white"
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-[var(--brand)] py-2.5 text-xs font-bold text-[var(--brand-contrast)]"
             >
               <WhatsAppIcon className="h-4 w-4" />
               {whatsappLabel}

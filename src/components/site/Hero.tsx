@@ -18,16 +18,16 @@ export function Hero() {
 
   return (
     <section id="top" className="relative mx-auto max-w-7xl overflow-hidden px-4 pt-28 pb-16 sm:px-6 md:pt-36 md:pb-24 lg:px-8">
-      <div className="pointer-events-none absolute top-1/3 left-1/4 h-[380px] w-[min(720px,90%)] -translate-y-1/2 rounded-full bg-red-600/12 blur-[140px]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/4 h-[380px] w-[min(720px,90%)] -translate-y-1/2 rounded-full bg-[var(--brand-veil)] blur-[140px]" />
       <div className="relative z-10 grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
         <div data-flow className="space-y-6 text-center lg:col-span-12 lg:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/40 px-4 py-1.5 text-xs text-red-400 shadow-[0_0_15px_rgba(229,9,20,0.3)]">
-            <Sparkles className="h-3.5 w-3.5 text-red-500" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-line)] bg-[var(--brand-veil)] px-4 py-1.5 text-xs text-[var(--brand)] shadow-[0_0_15px_var(--brand-glow)]">
+            <Sparkles className="h-3.5 w-3.5 text-[var(--brand)]" />
             <span>{hero.badgeText}</span>
           </div>
           <h1 className="font-brand text-4xl leading-[1.05] font-black tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
             {hero.titleLead}{" "}
-            <span className="text-red-600 whitespace-nowrap drop-shadow-[0_0_35px_rgba(229,9,20,0.8)]">
+            <span className="text-[var(--brand)] whitespace-nowrap drop-shadow-[0_0_35px_var(--brand-glow)]">
               {hero.titleHighlight}
             </span>
           </h1>
@@ -35,7 +35,7 @@ export function Hero() {
             {fields.map((field, index) => (
               <span key={field} className="inline-flex items-center gap-3 sm:gap-4">
                 {index > 0 ? (
-                  <span className="h-2 w-2 shrink-0 rounded-full bg-red-600 shadow-[0_0_10px_#e50914]" aria-hidden="true" />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--brand)] shadow-[0_0_10px_#e50914]" aria-hidden="true" />
                 ) : null}
                 {field}
               </span>
@@ -48,7 +48,7 @@ export function Hero() {
             <button
               type="button"
               onClick={() => scrollTo("showcase-3d")}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-8 py-3.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(229,9,20,0.6)] hover:bg-red-700 sm:w-auto sm:text-base"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--brand)] px-8 py-3.5 text-sm font-bold text-[var(--brand-contrast)] shadow-[0_0_30px_var(--brand-glow)] hover:bg-[var(--brand)] sm:w-auto sm:text-base"
             >
               <Box className="h-5 w-5" />
               {hero.btnShowroomText}
@@ -58,7 +58,7 @@ export function Hero() {
               onClick={() => scrollTo("portfolio")}
               className="flex w-full items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/90 px-8 py-3.5 text-sm font-semibold text-zinc-200 hover:border-zinc-700 hover:text-white sm:w-auto sm:text-base"
             >
-              <Layers className="h-4 w-4 text-red-500" />
+              <Layers className="h-4 w-4 text-[var(--brand)]" />
               {hero.btnArchiveText} ({projectCount} works)
             </button>
           </div>

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import type { SiteConfig } from "@/types/config";
 import { defaultConfig } from "@/data/default-config";
+import { hexToRgba, readableOn } from "@/lib/color";
 
 interface SiteConfigContextType {
   config: SiteConfig;
@@ -116,46 +117,50 @@ export function SiteConfigProvider({ children, initialConfig }: ProviderProps) {
   const dynamicStyles = useMemo(() => {
     const brandFont = config.typography?.brandFont || "Playfair Display";
     const bodyFont = config.typography?.bodyFont || "Plus Jakarta Sans";
-    const primary = config.typography?.primaryColor || "#E50914";
+    const brand = config.typography?.primaryColor || "#E50914";
     const bg = config.typography?.backgroundColor || "#070709";
     const text = config.typography?.textColor || "#F3F4F6";
     const baseSize = config.typography?.baseFontSize || 16;
     const headingScale = config.typography?.headingScale || 1.0;
 
+    /* The accent is client-chosen, so every tint is derived from it rather
+       than hard-coded. Previously only six exact utility classes were
+       overridden, which left ~50 elements stuck red whenever the client
+       picked a different brand colour. */
     return `
       :root {
         --font-brand: "${brandFont}", "Playfair Display", serif;
         --font-sans: "${bodyFont}", "Plus Jakarta Sans", system-ui, sans-serif;
-        --color-primary: ${primary};
-        --color-bg: ${bg};
-        --color-text: ${text};
+
+        --brand: ${brand};
+        --brand-contrast: ${readableOn(brand)};
+        --brand-soft: ${hexToRgba(brand, 0.12)};
+        --brand-veil: ${hexToRgba(brand, 0.05)};
+        --brand-line: ${hexToRgba(brand, 0.38)};
+        --brand-edge: ${hexToRgba(brand, 0.6)};
+        --brand-glow: ${hexToRgba(brand, 0.35)};
+
+        --bg: ${bg};
+        --ink: ${text};
+
         --base-font-size: ${baseSize}px;
         --heading-scale: ${headingScale};
+
+        /* Legacy aliases, kept so any stragglers still resolve. */
+        --color-primary: ${brand};
+        --color-bg: ${bg};
+        --color-text: ${text};
       }
+
       body {
         font-family: var(--font-sans);
-        background-color: var(--color-bg);
-        color: var(--color-text);
+        background-color: var(--bg);
+        color: var(--ink);
         font-size: var(--base-font-size);
       }
+
       .font-brand {
         font-family: var(--font-brand);
-      }
-      /* Dynamic primary color accents */
-      .text-red-500, .text-red-600 {
-        color: var(--color-primary) !important;
-      }
-      .bg-red-600, .bg-red-700 {
-        background-color: var(--color-primary) !important;
-      }
-      .border-red-500, .border-red-600 {
-        border-color: var(--color-primary) !important;
-      }
-      .shadow-\\[0_0_15px_rgba\\(229\\,9\\,20\\,0\\.4\\)\\] {
-        box-shadow: 0 0 20px ${primary}66 !important;
-      }
-      .shadow-\\[0_0_30px_rgba\\(229\\,9\\,20\\,0\\.6\\)\\] {
-        box-shadow: 0 0 35px ${primary}88 !important;
       }
     `;
   }, [config.typography]);

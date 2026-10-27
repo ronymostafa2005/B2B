@@ -27,7 +27,7 @@ export function ScreeningRoom({
     <div data-flow className="mx-auto mt-16 max-w-6xl px-4 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs tracking-[0.24em] text-red-500">{eyebrow}</p>
+          <p className="text-xs tracking-[0.24em] text-[var(--brand)]">{eyebrow}</p>
           <h3 className="font-brand mt-2 text-2xl font-black text-white sm:text-4xl">{title}</h3>
         </div>
         <p className="text-sm text-zinc-500">
@@ -36,7 +36,7 @@ export function ScreeningRoom({
       </div>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-black shadow-[0_24px_80px_rgba(229,9,20,0.16)]">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-black shadow-[0_24px_80px_var(--brand-glow)]">
           <div className={`relative bg-black ${film.wide ? "aspect-video" : "mx-auto aspect-[9/16] w-full max-w-[420px]"}`}>
             <video
               key={film.src}
@@ -66,7 +66,7 @@ export function ScreeningRoom({
                 type="button"
                 onClick={() => setActive(index)}
                 className={`flex w-56 shrink-0 items-center gap-3 rounded-2xl border p-2 text-left transition lg:w-full ${
-                  on ? "border-red-500 bg-red-950/40" : "border-zinc-800 bg-[#0c0c10] hover:border-zinc-600"
+                  on ? "border-[var(--brand)] bg-[var(--brand-veil)]" : "border-zinc-800 bg-[#0c0c10] hover:border-zinc-600"
                 }`}
               >
                 <SmartImage

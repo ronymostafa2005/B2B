@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./site.css";
 
 :root {
   --font-brand: "Playfair Display", serif;

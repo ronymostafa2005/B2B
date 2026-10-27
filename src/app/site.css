@@ -1,0 +1,229 @@
+/*
+ * Public-site design system — "the screening room".
+ *
+ * Same family as the /admin grading bay (hairline rules, mono micro-labels,
+ * one sharp accent) but scaled up for a showpiece: bigger type, more negative
+ * space, a varied section rhythm instead of a flat 96px everywhere.
+ *
+ * Brand colour and both typefaces are client-controlled from the dashboard, so
+ * nothing here hard-codes them — everything derives from the tokens that
+ * SiteConfigContext emits.
+ */
+
+:root {
+  /* Surfaces. A short ramp, so depth reads as light rather than as borders. */
+  --surface: rgba(255, 255, 255, 0.022);
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --surface-sunk: rgba(0, 0, 0, 0.32);
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-soft: rgba(255, 255, 255, 0.045);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  --ink-dim: rgba(244, 244, 246, 0.72);
+  --ink-faint: rgba(244, 244, 246, 0.5);
+  --ink-ghost: rgba(244, 244, 246, 0.3);
+
+  /* Type scale, multiplied by the client's heading scale. */
+  --scale: var(--heading-scale, 1);
+  --step-0: 1rem;
+  --step-1: calc(1.2rem * var(--scale));
+  --step-2: calc(1.5rem * var(--scale));
+  --step-3: calc(2rem * var(--scale));
+  --step-4: calc(2.75rem * var(--scale));
+  --step-5: calc(3.75rem * var(--scale));
+  --step-6: calc(5rem * var(--scale));
+
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --measure: 62ch;
+}
+
+/* ---- Rhythm ------------------------------------------------------------ */
+
+/* Three tiers instead of one flat value, so the page has a cadence. */
+.band {
+  padding-block: clamp(4.5rem, 9vw, 8rem);
+}
+
+.band-tight {
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.band-loose {
+  padding-block: clamp(6rem, 13vw, 11rem);
+}
+
+.shell {
+  width: 100%;
+  max-width: 82rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Hairline divider between sections — lighter than a border, and it fades at
+   the edges so it reads as a seam rather than a box. */
+.seam {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+/* ---- Typography -------------------------------------------------------- */
+
+.display {
+  font-family: var(--font-brand);
+  font-size: var(--step-5);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+
+.display-sm {
+  font-family: var(--font-brand);
+  font-size: var(--step-4);
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+/* The accented fragment inside a display line. */
+.display .accent,
+.display-sm .accent {
+  color: var(--brand);
+}
+
+/* Mono micro-label. Shared with the dashboard — it is the strongest single
+   cue that the tool and the site belong to one system. */
+.micro {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+/* ---- Surfaces ---------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: border-color 0.24s ease, background 0.24s ease, transform 0.24s ease;
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+
+/* ---- Controls ---------------------------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+  color: var(--ink-dim);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.chip:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.chip[data-active="true"] {
+  background: var(--brand);
+  border-color: transparent;
+  color: var(--brand-contrast);
+}
+
+/* Secondary chip tier — a suggestion, not a filter. Outlined in the accent
+   so it reads as a different kind of control from the sector chips. */
+.chip-ghost {
+  border-color: var(--brand-line);
+  color: var(--brand);
+  background: var(--brand-veil);
+}
+
+.chip-ghost:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand-edge);
+  color: var(--brand);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  padding: 0.7rem 1.15rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: var(--brand-contrast);
+  box-shadow: 0 10px 30px -12px var(--brand-glow);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 14px 38px -12px var(--brand-glow);
+}
+
+.btn-quiet {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.btn-quiet:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* ---- Focus ------------------------------------------------------------- */
+
+/* One visible treatment everywhere. Several site controls previously used
+   focus:outline-none with nothing in its place. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--brand-contrast);
+}
+
+/* ---- Motion ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .chip,
+  .btn {
+    transition: none;
+  }
+}

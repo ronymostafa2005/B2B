@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SmartImage } from "@/components/SmartImage";
 import { adminFontVars } from "@/app/admin/fonts";
+import { readableOn } from "@/lib/color";
 import {
   Type,
   Layout,
@@ -32,6 +33,9 @@ import {
   ImageOff,
   FileJson,
   Undo2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { SiteConfig, ProjectConfig, ClientMarkConfig } from "@/types/config";
 import {
@@ -275,6 +279,8 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
      derived by comparing against this. */
   const [savedConfig, setSavedConfig] = useState<SiteConfig>(initialConfig);
   const [activeTab, setActiveTab] = useState<TabId>("typography");
+  // Mobile nav disclosure; the desktop rail is always shown.
+  const [navOpen, setNavOpen] = useState(false);
 
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -282,6 +288,7 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
   const [uploading, setUploading] = useState(false);
 
   const [projectSearch, setProjectSearch] = useState("");
+  const [projectPage, setProjectPage] = useState(1);
   const [selectedProject, setSelectedProject] = useState<ProjectConfig | null>(null);
   // The slug the project had when the modal was opened. The slug itself is
   // editable, so this is what we match on when writing the edit back.
@@ -298,6 +305,7 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
   const accent = config.typography?.primaryColor || "#E50914";
   const accentVars = {
     "--ad-accent": accent,
+    "--ad-accent-contrast": readableOn(accent),
     "--ad-accent-soft": hexToRgba(accent, 0.14),
     "--ad-accent-line": hexToRgba(accent, 0.42),
   } as React.CSSProperties;
@@ -554,6 +562,31 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
     );
   }, [config.projects, projectSearch]);
 
+  /* The group and label of the active tab, shown on the mobile disclosure so
+     the current location is still legible when the rail is collapsed. A plain
+     lookup over ten items — cheap enough that memoising it only confused the
+     React Compiler. */
+  const currentGroup = NAV_GROUPS.find((g) => g.items.some((i) => i.id === activeTab));
+  const currentItem = currentGroup?.items.find((i) => i.id === activeTab);
+  const current = {
+    group: currentGroup?.label ?? "",
+    label: currentItem?.label ?? "",
+    icon: currentItem?.icon,
+  };
+
+  /* Paginate the archive. The grid rendered all 17 at once and would keep
+     growing as the client adds work; a page of 9 keeps the list scannable and
+     the image cost bounded. */
+  const PROJECTS_PER_PAGE = 9;
+  const projectPageCount = Math.max(1, Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE));
+  // Clamp rather than store an out-of-range page, so deleting the last item on
+  // the final page or narrowing a search can never land on an empty grid.
+  const safeProjectPage = Math.min(projectPage, projectPageCount);
+  const pagedProjects = filteredProjects.slice(
+    (safeProjectPage - 1) * PROJECTS_PER_PAGE,
+    safeProjectPage * PROJECTS_PER_PAGE
+  );
+
   const counts: Partial<Record<TabId, number>> = {
     projects: config.projects.length,
     services: config.studioServices.length,
@@ -649,14 +682,89 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
       <div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8">
         {/* --------------------------- Nav rail --------------------------- */}
         <aside className="w-full shrink-0 lg:w-[232px]">
+          {/* Below lg the rail became a 2684px horizontal strip inside a 360px
+              column: one of ten items reachable, no scroll affordance, and the
+              group labels hidden entirely. A disclosure keeps the whole
+              information architecture one tap away instead. */}
+          <div className="lg:hidden">
+            <button
+              type="button"
+              onClick={() => setNavOpen((open) => !open)}
+              aria-expanded={navOpen}
+              aria-controls="ad-mobile-nav"
+              className="ad-focusable flex w-full items-center justify-between gap-3 rounded-[12px] border border-[var(--ad-line)] bg-[var(--ad-panel)] px-3.5 py-2.5 text-left"
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                {current.icon && (
+                  <current.icon className="h-4 w-4 shrink-0" style={{ color: "var(--ad-accent)" }} />
+                )}
+                <span className="min-w-0">
+                  <span className="ad-micro block leading-tight">{current.group}</span>
+                  <span className="block truncate text-[13px] font-medium leading-tight text-[var(--ad-ink)]">
+                    {current.label}
+                  </span>
+                </span>
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-[var(--ad-ink-faint)] transition-transform duration-200 ${
+                  navOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {navOpen && (
+              <nav
+                id="ad-mobile-nav"
+                aria-label="Dashboard sections"
+                className="ad-rise mt-2 space-y-4 rounded-[12px] border border-[var(--ad-line)] bg-[var(--ad-panel)] p-2.5"
+              >
+                {NAV_GROUPS.map((group) => (
+                  <div key={group.label}>
+                    <p className="ad-micro mb-1 px-2">{group.label}</p>
+                    <div className="space-y-0.5">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const active = activeTab === item.id;
+                        const count = counts[item.id];
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            data-active={active}
+                            aria-current={active ? "page" : undefined}
+                            onClick={() => {
+                              setActiveTab(item.id);
+                              setNavOpen(false);
+                            }}
+                            className="ad-nav-item ad-focusable"
+                          >
+                            <Icon
+                              className="h-[15px] w-[15px] shrink-0"
+                              style={{ color: active ? "var(--ad-accent)" : "var(--ad-ink-ghost)" }}
+                            />
+                            <span className="flex-1 text-[13px] font-medium">{item.label}</span>
+                            {count !== undefined && (
+                              <span className="ad-mono text-[10px] text-[var(--ad-ink-ghost)]">{count}</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+            )}
+          </div>
+
+          {/* Desktop rail */}
           <nav
             aria-label="Dashboard sections"
-            className="ad-scroll sticky top-[76px] -mx-1 flex gap-5 overflow-x-auto px-1 pb-2 lg:mx-0 lg:block lg:space-y-5 lg:overflow-visible lg:px-0 lg:pb-0"
+            className="sticky top-[76px] hidden space-y-5 lg:block"
           >
             {NAV_GROUPS.map((group) => (
-              <div key={group.label} className="shrink-0">
-                <p className="ad-micro mb-1.5 hidden px-3 lg:block">{group.label}</p>
-                <div className="flex gap-1 lg:block lg:space-y-0.5">
+              <div key={group.label}>
+                <p className="ad-micro mb-1.5 px-3">{group.label}</p>
+                <div className="space-y-0.5">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const active = activeTab === item.id;
@@ -668,7 +776,7 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                         data-active={active}
                         aria-current={active ? "page" : undefined}
                         onClick={() => setActiveTab(item.id)}
-                        className="ad-nav-item ad-focusable shrink-0 whitespace-nowrap"
+                        className="ad-nav-item ad-focusable"
                       >
                         <Icon
                           className="h-[15px] w-[15px] shrink-0"
@@ -1222,7 +1330,10 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                 <input
                   type="text"
                   value={projectSearch}
-                  onChange={(e) => setProjectSearch(e.target.value)}
+                  onChange={(e) => {
+                    setProjectSearch(e.target.value);
+                    setProjectPage(1);
+                  }}
                   placeholder="Search by name, sector or keyword…"
                   aria-label="Search projects"
                   className="ad-field ad-field-search"
@@ -1234,7 +1345,10 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                   {projectSearch && (
                     <button
                       type="button"
-                      onClick={() => setProjectSearch("")}
+                      onClick={() => {
+                        setProjectSearch("");
+                        setProjectPage(1);
+                      }}
                       aria-label="Clear search"
                       className="ad-focusable rounded p-0.5 text-[var(--ad-ink-faint)] transition hover:text-[var(--ad-ink)]"
                     >
@@ -1257,7 +1371,7 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                 />
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {filteredProjects.map((project, index) => (
+                  {pagedProjects.map((project, index) => (
                     <article
                       key={project.slug || index}
                       className="group flex flex-col overflow-hidden rounded-[14px] border border-[var(--ad-line)] bg-[var(--ad-panel)]/80 transition hover:border-[var(--ad-line-strong)]"
@@ -1328,6 +1442,66 @@ export function AdminDashboardClient({ initialConfig, userEmail }: Props) {
                     </article>
                   ))}
                 </div>
+              )}
+
+              {projectPageCount > 1 && (
+                <nav
+                  aria-label="Project pages"
+                  className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--ad-line-soft)] pt-5"
+                >
+                  <p className="ad-mono text-[10px] uppercase tracking-[0.1em] text-[var(--ad-ink-faint)]">
+                    {(safeProjectPage - 1) * PROJECTS_PER_PAGE + 1}–
+                    {Math.min(safeProjectPage * PROJECTS_PER_PAGE, filteredProjects.length)} of{" "}
+                    {filteredProjects.length}
+                  </p>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="secondary"
+                      icon={ChevronLeft}
+                      disabled={safeProjectPage === 1}
+                      onClick={() => setProjectPage(safeProjectPage - 1)}
+                      className="px-2.5 py-1.5"
+                      aria-label="Previous page"
+                    >
+                      Prev
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: projectPageCount }, (_, i) => i + 1).map((n) => {
+                        const active = n === safeProjectPage;
+                        return (
+                          <button
+                            key={n}
+                            type="button"
+                            aria-current={active ? "page" : undefined}
+                            aria-label={`Page ${n}`}
+                            onClick={() => setProjectPage(n)}
+                            className="ad-focusable ad-mono h-7 min-w-7 rounded-[8px] border px-1.5 text-[11px] transition"
+                            style={{
+                              borderColor: active ? "transparent" : "var(--ad-line)",
+                              background: active ? "var(--ad-accent)" : "var(--ad-raised)",
+                              color: active ? "#fff" : "var(--ad-ink-dim)",
+                            }}
+                          >
+                            {n}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      variant="secondary"
+                      disabled={safeProjectPage === projectPageCount}
+                      onClick={() => setProjectPage(safeProjectPage + 1)}
+                      className="px-2.5 py-1.5"
+                      aria-label="Next page"
+                    >
+                      Next
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </nav>
               )}
 
               {/* Project editor — portalled to <body>, because an ancestor panel
