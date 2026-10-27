@@ -579,6 +579,17 @@ export type EstimateRead = {
   craft: string;
 };
 
+/**
+ * Split a free-text brief into meaningful search tokens, dropping stop words
+ * and single characters. Shared by the estimator and the archive search.
+ */
+export function briefTokens(text: string): string[] {
+  return text
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((token) => token.length > 1 && !stopWords.has(token));
+}
+
 export function readEstimate(query: string): EstimateRead | null {
   const text = query.toLowerCase();
   const tokens = text.split(/[^\p{L}\p{N}]+/u).filter((token) => token.length > 1 && !stopWords.has(token));

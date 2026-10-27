@@ -40,7 +40,7 @@ export function LogoStage() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="pointer-events-none absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-600/25 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--brand-soft)] blur-3xl" />
       <div className="logo-orbit relative h-[240px] sm:h-[280px]">
         {marks.map((mark, index) => {
           const offset = wrapOffset(index, active, count);
@@ -83,7 +83,7 @@ export function LogoStage() {
             type="button"
             aria-label={`Show ${mark.name}`}
             onClick={() => setActive(index)}
-            className={`h-1.5 rounded-full transition-all ${index === active ? "w-6 bg-red-600" : "w-1.5 bg-zinc-700"}`}
+            className={`h-1.5 rounded-full transition-all ${index === active ? "w-6 bg-[var(--brand)]" : "w-1.5 bg-zinc-700"}`}
           />
         ))}
       </div>

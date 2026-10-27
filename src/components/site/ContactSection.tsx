@@ -38,10 +38,10 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contact" className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+    <section id="contact" className="mx-auto max-w-7xl border-t border-[var(--line-soft)] band px-4 sm:px-6 lg:px-8">
       <div className="grid gap-10 lg:grid-cols-12">
         <div data-flow className="lg:col-span-5">
-          <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
+          <div className="mb-3 inline-flex rounded-full border border-[var(--brand-line)] bg-[var(--brand-veil)] px-3 py-1 text-xs text-[var(--brand)]">
             {sec.badgeText || "15-MINUTE CONSULT"}
           </div>
           <h2 className="font-brand text-3xl font-black text-white md:text-5xl">{sec.title || "Send the brief"}</h2>
@@ -51,14 +51,14 @@ export function ContactSection() {
           <ul className="mt-6 space-y-3 text-sm text-zinc-300">
             {agency.location && (
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-red-500" />
+                <MapPin className="h-4 w-4 text-[var(--brand)]" />
                 {agency.location}
               </li>
             )}
             {agency.email && (
               <li>
                 <a href={`mailto:${agency.email}`} className="flex items-center gap-2 hover:text-white">
-                  <Mail className="h-4 w-4 text-red-500" />
+                  <Mail className="h-4 w-4 text-[var(--brand)]" />
                   {agency.email}
                 </a>
               </li>
@@ -66,7 +66,7 @@ export function ContactSection() {
             {agency.phone && (
               <li>
                 <a href={agency.phoneHref || `tel:${agency.phone}`} className="flex items-center gap-2 hover:text-white">
-                  <Phone className="h-4 w-4 text-red-500" />
+                  <Phone className="h-4 w-4 text-[var(--brand)]" />
                   {agency.phone}
                 </a>
               </li>
@@ -74,7 +74,7 @@ export function ContactSection() {
             {agency.whatsapp && (
               <li>
                 <a href={agency.whatsappHref || `https://wa.me/${agency.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
-                  <WhatsAppIcon className="h-4 w-4 text-red-500" />
+                  <WhatsAppIcon className="h-4 w-4 text-[var(--brand)]" />
                   {agency.whatsapp}
                 </a>
               </li>
@@ -82,7 +82,7 @@ export function ContactSection() {
             {agency.facebook && (
               <li>
                 <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
-                  <FacebookIcon className="h-4 w-4 text-red-500" />
+                  <FacebookIcon className="h-4 w-4 text-[var(--brand)]" />
                   Facebook
                 </a>
               </li>
@@ -90,7 +90,7 @@ export function ContactSection() {
             {agency.instagram && (
               <li>
                 <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
-                  <InstagramIcon className="h-4 w-4 text-red-500" />
+                  <InstagramIcon className="h-4 w-4 text-[var(--brand)]" />
                   Instagram
                 </a>
               </li>
@@ -112,13 +112,13 @@ export function ContactSection() {
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               placeholder="The field, what you need, and what should change."
-              className="mt-2 min-h-32 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 text-sm text-white normal-case placeholder:text-zinc-600 focus:border-red-500 focus:outline-none"
+              className="mt-2 min-h-32 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 text-sm text-white normal-case placeholder:text-zinc-600 focus:border-[var(--brand)] focus:outline-none"
             />
           </label>
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <button
               type="submit"
-              className="w-full rounded-2xl bg-red-600 px-8 py-3.5 text-sm font-bold text-white shadow-[0_0_20px_rgba(229,9,20,0.5)] hover:bg-red-700 sm:w-auto"
+              className="w-full rounded-2xl bg-[var(--brand)] px-8 py-3.5 text-sm font-bold text-[var(--brand-contrast)] shadow-[0_0_20px_var(--brand-glow)] hover:bg-[var(--brand)] sm:w-auto"
             >
               Open mail client
             </button>
@@ -153,7 +153,7 @@ function Field({
         name={name}
         required={required}
         autoComplete={autoComplete}
-        className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-sm text-white normal-case focus:border-red-500 focus:outline-none"
+        className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-sm text-white normal-case focus:border-[var(--brand)] focus:outline-none"
       />
     </label>
   );

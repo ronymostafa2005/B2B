@@ -28,6 +28,9 @@
 
   /* Accent is injected inline from config; these are only fallbacks. */
   --ad-accent: #e50914;
+  /* Readable foreground for anything sitting on the accent. Derived from
+     the client's colour at runtime; this is only the fallback. */
+  --ad-accent-contrast: #ffffff;
   --ad-accent-soft: rgba(229, 9, 20, 0.14);
   --ad-accent-line: rgba(229, 9, 20, 0.42);
 
@@ -131,6 +134,32 @@ textarea.ad-field {
   line-height: 1.6;
   resize: vertical;
   min-height: 64px;
+}
+
+
+/* Chrome paints autofilled inputs with its own pale background, which breaks
+   a dark form. There is no property to restyle it directly, so the colour is
+   carried by an inset shadow and the text by -webkit-text-fill-color. */
+.ad-field:-webkit-autofill,
+.ad-field:-webkit-autofill:hover,
+.ad-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ad-ink);
+  -webkit-box-shadow: 0 0 0 1000px var(--ad-input) inset;
+  box-shadow: 0 0 0 1000px var(--ad-input) inset;
+  caret-color: var(--ad-ink);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Inset variants. Same reason as the search field: Tailwind v4 emits padding
+   utilities inside @layer, so the unlayered `.ad-field` padding wins and a
+   `pl-9` meant to clear a leading icon has no effect — the icon lands on top
+   of the text. */
+.ad-field-lead {
+  padding: 10px 11px 10px 36px;
+}
+
+.ad-field-lead-trail {
+  padding: 10px 40px 10px 36px;
 }
 
 /* Search variant. Tailwind v4 emits utilities inside @layer, so unlayered

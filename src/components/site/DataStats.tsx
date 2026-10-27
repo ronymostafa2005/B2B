@@ -42,13 +42,13 @@ export function DataStats() {
   }, []);
 
   return (
-    <section id="agency-data" data-flow className="mx-auto max-w-7xl border-t border-zinc-900/80 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+    <section id="agency-data" data-flow className="mx-auto max-w-7xl border-t border-[var(--line-soft)] band-tight px-4 sm:px-6 lg:px-8">
       <div className="mx-auto mb-12 max-w-3xl text-center">
-        <div className="mb-4 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
+        <div className="mb-4 inline-flex rounded-full border border-[var(--brand-line)] bg-[var(--brand-veil)] px-3 py-1 text-xs text-[var(--brand)]">
           {sec.badgeText || "THE RECORD"}
         </div>
         <h2 className="font-brand text-3xl font-black text-white md:text-5xl">
-          {sec.title || "The archive,"} <span className="text-red-600">{sec.titleHighlight || "in the open"}</span>
+          {sec.title || "The archive,"} <span className="text-[var(--brand)]">{sec.titleHighlight || "in the open"}</span>
         </h2>
         <p className="mt-3 text-sm text-zinc-400 md:text-base">
           {sec.description || "Years, shipped projects, clients, and how the work on this site is split across fields."}
@@ -69,7 +69,7 @@ export function DataStats() {
                 sound.playClick();
               }}
               className={`rounded-xl px-4 py-2 text-xs font-semibold sm:text-sm ${
-                tab === id ? "bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.5)]" : "text-zinc-400"
+                tab === id ? "bg-[var(--brand)] text-[var(--brand-contrast)] shadow-[0_0_15px_var(--brand-glow)]" : "text-zinc-400"
               }`}
             >
               {label}
@@ -81,7 +81,7 @@ export function DataStats() {
       {tab === "kpi" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {impactList.map((item) => (
-            <article key={item.label} className="rounded-2xl border border-zinc-800/80 bg-[#0c0c10] p-6 transition hover:-translate-y-1 hover:border-red-500/50">
+            <article key={item.label} className="rounded-2xl border border-zinc-800/80 bg-[#0c0c10] p-6 transition hover:-translate-y-1 hover:border-[var(--brand-line)]">
               <div className="font-brand text-4xl font-black text-white sm:text-5xl">
                 <Count to={item.value} run={on} />
                 {item.suffix}
@@ -105,7 +105,7 @@ export function DataStats() {
                   <span>
                     {item.label} · {item.count}
                   </span>
-                  <span className="text-red-400">{item.pct}%</span>
+                  <span className="text-[var(--brand)]">{item.pct}%</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-zinc-900">
                   <div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: item.color }} />
@@ -153,7 +153,7 @@ export function DataStats() {
         <ol className="grid gap-4 md:grid-cols-3">
           {recipe.map((step) => (
             <li key={step.step} className="rounded-2xl border border-zinc-800 bg-[#0c0c10] p-6">
-              <span className="text-xs font-bold text-red-500">{step.step}</span>
+              <span className="text-xs font-bold text-[var(--brand)]">{step.step}</span>
               <h3 className="font-brand mt-2 text-2xl font-bold text-white">{step.title}</h3>
               <p className="mt-2 text-sm text-zinc-400">{step.text}</p>
             </li>

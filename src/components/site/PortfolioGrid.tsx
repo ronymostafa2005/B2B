@@ -1,11 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
-import { ArrowUpRight, Search } from "lucide-react";
-import { prompts, sectors, studioFrames, styles, type Project, type SectorId, type StyleFilter } from "@/lib/content";
+import { ArrowDown, ArrowUpRight, ImageOff, Search } from "lucide-react";
+import { SmartImage } from "@/components/SmartImage";
+import { briefTokens, prompts, sectors, styles, type Project, type SectorId, type StyleFilter } from "@/lib/content";
 import { sound } from "@/lib/sound";
 import { useSiteConfig } from "@/context/SiteConfigContext";
+
+/* Three rows of the widest grid, so a "show more" always lands on a clean
+   row rather than a ragged half-row. */
+const PAGE_STEP = 9;
 
 export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: Project) => void }) {
   const { config } = useSiteConfig();
@@ -21,24 +25,53 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
   const [tone, setTone] = useState<StyleFilter>("all");
   const [query, setQuery] = useState("");
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  /* How many of the matched projects are on screen. The archive grows as the
+     studio ships work, and rendering every card mounts every cover image. */
+  const [shown, setShown] = useState(PAGE_STEP);
+
+  // Any change of filter, tone or query is a new result set, so the window
+  // goes back to the first page rather than keeping a deep scroll.
+  const resetWindow = () => setShown(PAGE_STEP);
 
   const visible = useMemo(() => {
-    return allProjects.filter((project) => {
+    const inScope = allProjects.filter((project) => {
       const sectorOk = sector === "all" || project.sector === sector;
       const toneOk = tone === "all" || project.styles.includes(tone as unknown as typeof project.styles[number]);
-      if (!sectorOk || !toneOk) return false;
-
-      const text = query.trim().toLowerCase();
-      if (!text) return true;
-      return [project.title, project.arabic, project.solution, project.problem, project.sector, ...(project.keys || []), ...(project.needs || [])]
-        .join(" ")
-        .toLowerCase()
-        .includes(text);
+      return sectorOk && toneOk;
     });
+
+    /* Match on tokens, not the whole phrase, and rank by how many land.
+       Matching the raw string meant a suggested brief like "Bold campaign for
+       a car brand" was never a substring of any project and emptied the grid —
+       while the copy promises the closest work comes first. */
+    const tokens = briefTokens(query);
+    if (tokens.length === 0) return inScope;
+
+    return inScope
+      .map((project) => {
+        const haystack = [
+          project.title,
+          project.arabic,
+          project.solution,
+          project.problem,
+          project.sector,
+          ...(project.keys || []),
+          ...(project.needs || []),
+          ...(project.styles || []),
+        ]
+          .join(" ")
+          .toLowerCase();
+        const score = tokens.reduce((n, token) => n + (haystack.includes(token) ? 1 : 0), 0);
+        return { project, score };
+      })
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.project);
   }, [allProjects, query, sector, tone]);
 
   function runBrief(text: string) {
     setQuery(text);
+    resetWindow();
     const tokens = text.toLowerCase().split(/\s+/);
     const hits = allProjects.filter((p) =>
       tokens.some((t) => [p.title, p.arabic, p.problem, p.solution, ...(p.keys || [])].join(" ").toLowerCase().includes(t))
@@ -48,15 +81,15 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
   }
 
   return (
-    <section id="portfolio" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+    <section id="portfolio" className="mx-auto max-w-7xl band px-4 sm:px-6 lg:px-8">
       <div data-flow className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <div className="mb-3 inline-flex rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 text-xs text-red-500">
+          <div className="mb-3 inline-flex rounded-full border border-[var(--brand-line)] bg-[var(--brand-veil)] px-3 py-1 text-xs text-[var(--brand)]">
             {portfolioSection.badgeText || "SELECTED CASE STUDIES"}
           </div>
           <h2 className="font-brand text-3xl font-black text-white md:text-5xl">
             {portfolioSection.title || "The"}{" "}
-            <span className="text-red-600">{portfolioSection.titleHighlight || "archive"}</span>
+            <span className="text-[var(--brand)]">{portfolioSection.titleHighlight || "archive"}</span>
           </h2>
           <p className="mt-2 max-w-xl text-sm text-zinc-400 md:text-base">
             {allProjects.length} shipped campaigns and identities. Search a brief and the reader puts the closest work first.
@@ -70,140 +103,189 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
             onChange={(event) => {
               setQuery(event.target.value);
               setReasons({});
+              resetWindow();
             }}
             placeholder="Search campaigns, fields, briefs"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-900/90 py-2.5 pr-4 pl-10 text-sm text-white placeholder:text-zinc-500 focus:border-red-500 focus:outline-none"
+            className="w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] py-2.5 pr-4 pl-10 text-sm text-[var(--ink)] placeholder:text-[var(--ink-ghost)] transition focus:border-[var(--brand)]"
           />
         </label>
       </div>
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
-        {sectors.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => {
-              setSector(item.id);
-              sound.playClick();
-            }}
-            className={`shrink-0 rounded-xl px-4 py-2 text-xs font-semibold sm:text-sm ${
-              sector === item.id ? "bg-red-600 text-white shadow-[0_0_20px_rgba(229,9,20,0.5)]" : "border border-zinc-800 bg-zinc-900/90 text-zinc-400"
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-      <div className="mb-8 flex flex-wrap gap-2">
-        {styles.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => {
-              setTone(item.id);
-              sound.playClick();
-            }}
-            className={`rounded-full px-3 py-1 text-xs ${
-              tone === item.id ? "bg-white text-black" : "border border-zinc-800 text-zinc-400"
-            }`}
-          >
-            {item.id === "all" ? "Any tone" : item.label}
-          </button>
-        ))}
-        {prompts.map((prompt) => (
-          <button
-            key={prompt}
-            type="button"
-            onClick={() => runBrief(prompt)}
-            className="rounded-full border border-red-900/60 px-3 py-1 text-xs text-red-300 hover:border-red-500"
-          >
-            {prompt}
-          </button>
-        ))}
-      </div>
+      {/* Three different kinds of control used to sit in two unlabelled rows:
+          sector filters, tone filters, and brief prompts that run a search
+          rather than filter. Grouping and labelling them makes the difference
+          legible, and the accent is reserved for the one active choice. */}
+      <div className="mb-10 space-y-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <span className="micro w-16 shrink-0 pt-1 sm:pt-0">Sector</span>
+          <div className="flex flex-wrap gap-2">
+            {sectors.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={sector === item.id}
+                onClick={() => {
+                  setSector(item.id);
+                  resetWindow();
+                  sound.playClick();
+                }}
+                className="chip"
+                data-active={sector === item.id}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      <div className="mb-10">
-        <p className="mb-4 text-xs tracking-[0.22em] text-zinc-500 uppercase">Offers and the clinic</p>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {studioFrames.map((frame) => (
-            <figure key={frame.src} data-flow className="group">
-              <div className="relative bg-[#070709] p-3 ring-1 ring-white/10">
-                <span className="pointer-events-none absolute top-1.5 left-1.5 h-3.5 w-3.5 border-t border-l border-red-600" />
-                <span className="pointer-events-none absolute top-1.5 right-1.5 h-3.5 w-3.5 border-t border-r border-red-600" />
-                <span className="pointer-events-none absolute bottom-1.5 left-1.5 h-3.5 w-3.5 border-b border-l border-red-600" />
-                <span className="pointer-events-none absolute right-1.5 bottom-1.5 h-3.5 w-3.5 border-r border-b border-red-600" />
-                <Image
-                  src={frame.src}
-                  alt={frame.line}
-                  width={480}
-                  height={517}
-                  quality={100}
-                  unoptimized
-                  sizes="(min-width: 1024px) 280px, 45vw"
-                  className="h-auto w-full"
-                />
-              </div>
-              <figcaption className="mt-2 flex items-baseline justify-between gap-2">
-                <span className="text-sm font-semibold text-white">{frame.title}</span>
-                <span className="text-[11px] text-zinc-500">{frame.line}</span>
-              </figcaption>
-            </figure>
-          ))}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <span className="micro w-16 shrink-0 pt-1 sm:pt-0">Tone</span>
+          <div className="flex flex-wrap gap-2">
+            {styles.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={tone === item.id}
+                onClick={() => {
+                  setTone(item.id);
+                  resetWindow();
+                  sound.playClick();
+                }}
+                className="chip"
+                data-active={tone === item.id}
+              >
+                {item.id === "all" ? "Any tone" : item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-[var(--line-soft)] pt-5 sm:flex-row sm:items-start">
+          <span className="micro w-16 shrink-0 pt-1.5">Try</span>
+          <div className="flex flex-wrap gap-2">
+            {prompts.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                onClick={() => runBrief(prompt)}
+                className="chip chip-ghost"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((project, index) => (
-          <button
-            key={project.slug}
-            type="button"
-            onClick={() => {
-              sound.playSuccess();
-              onSelectProject(project);
-            }}
-            data-flow
-            className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#0d0d11] text-left transition duration-300 hover:border-zinc-600"
-          >
-            <span className="relative grid h-52 place-items-center overflow-hidden bg-[#0c0c10] sm:h-60">
-              <span className="px-8 text-center">
-                <span
-                  className="mark-name font-brand block text-balance text-[1.65rem] leading-none font-semibold text-white sm:text-[2rem]"
-                  style={{ animationDelay: `${(index % 3) * 80}ms` }}
-                >
+      {/* The archive leads with the work itself. The static four-frame strip
+          that used to sit here showed one brand's set and never responded to
+          the filters, while the real projects rendered as text-only cards —
+          their title set large on an empty panel, then repeated underneath.
+          Each card now opens on its own first frame. */}
+      <div className="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+        {visible.slice(0, shown).map((project, index) => {
+          const sectorLabel =
+            sectors.find((item) => item.id === project.sector)?.label || project.sector;
+          const cover = project.images?.[0];
+
+          return (
+            <button
+              key={project.slug}
+              type="button"
+              onClick={() => {
+                sound.playSuccess();
+                onSelectProject(project);
+              }}
+              data-flow
+              aria-label={`Open ${project.title}`}
+              className="group flex flex-col text-left"
+            >
+              <span className="relative block aspect-[4/5] w-full overflow-hidden rounded-[12px] border border-[var(--line)] bg-[var(--surface-sunk)] transition duration-300 group-hover:border-[var(--line-strong)]">
+                {cover ? (
+                  <SmartImage
+                    src={cover}
+                    alt={project.alt || project.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={index < 3}
+                    className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.035]"
+                  />
+                ) : (
+                  <span className="grid h-full w-full place-items-center">
+                    <ImageOff className="h-5 w-5 text-[var(--ink-ghost)]" />
+                  </span>
+                )}
+
+                {/* Scrim only at the foot, so the artwork stays readable while
+                    the sector and the open affordance keep their contrast. */}
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/75 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+
+                <span className="absolute top-3 left-3 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-[10px] tracking-[0.16em] text-white/85 uppercase backdrop-blur-sm">
+                  {sectorLabel}
+                </span>
+
+                <span className="absolute right-3 bottom-3 flex items-center gap-1.5 text-[11px] text-white/70">
+                  <span className="translate-y-1 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    {project.images.length} frames
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 transition duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--brand)]" />
+                </span>
+              </span>
+
+              <span className="mt-3.5 flex items-baseline justify-between gap-3">
+                <span className="font-brand text-[1.05rem] leading-tight text-[var(--ink)]">
                   {project.title}
                 </span>
-                <span
-                  className="mark-rule mx-auto mt-4 block h-px w-10 origin-center bg-red-600"
-                  style={{ animationDelay: `${180 + (index % 3) * 80}ms` }}
-                />
-                <span
-                  className="mark-arabic mt-3 block text-[11px] tracking-[0.32em] text-zinc-500"
-                  dir="rtl"
-                  style={{ animationDelay: `${320 + (index % 3) * 80}ms` }}
-                >
+                <span className="shrink-0 text-[11px] tracking-[0.2em] text-[var(--ink-ghost)]" dir="rtl">
                   {project.arabic}
                 </span>
               </span>
-              <span className="absolute top-3 left-3 rounded-full border border-white/10 px-2.5 py-1 text-[10px] tracking-[0.18em] text-zinc-400 uppercase">
-                {sectors.find((item) => item.id === project.sector)?.label || project.sector}
-              </span>
-              <span className="absolute right-3 bottom-3 text-zinc-500 opacity-0 transition duration-300 group-hover:text-zinc-200 group-hover:opacity-100">
-                <ArrowUpRight className="h-4 w-4" />
-              </span>
-            </span>
-            <span className="flex flex-1 flex-col border-t border-zinc-900 bg-[#070709] p-5">
-              <span className="mb-1 flex items-center justify-between text-xs text-zinc-500">
-                <span>{project.needs.join(" · ")}</span>
-                <span>{project.images.length} frames</span>
-              </span>
-              <span className="text-sm font-semibold tracking-wide text-zinc-200">{project.title}</span>
-              <span className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400">
+
+              <span className="mt-1.5 line-clamp-2 text-[12.5px] leading-relaxed text-[var(--ink-faint)]">
                 {reasons[project.slug] ?? project.solution}
               </span>
-            </span>
-          </button>
-        ))}
+
+              {/* The rule is the one accent on the card and only draws on hover,
+                  so a wall of twenty does not read as twenty competing marks. */}
+              <span className="mt-3 block h-px w-8 origin-left bg-[var(--brand)] transition-all duration-300 group-hover:w-16" />
+            </button>
+          );
+        })}
       </div>
+
+      {/* Progressive reveal rather than numbered pages. The archive is ranked
+          — closest work first — and numbered pages would bury the strongest
+          matches behind a click, reload every cover on each page change, and
+          throw away the reader's scroll position mid-browse. */}
+      {visible.length > 0 && (
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <div
+            className="h-px w-full max-w-xs"
+            style={{ background: "linear-gradient(90deg,transparent,var(--line),transparent)" }}
+          />
+
+          {/* Announced politely so the count reaches a screen reader after the
+              new row mounts, without interrupting. */}
+          <p className="micro" aria-live="polite">
+            Showing {Math.min(shown, visible.length)} of {visible.length}
+          </p>
+
+          {shown < visible.length && (
+            <button
+              type="button"
+              onClick={() => {
+                setShown((n) => n + PAGE_STEP);
+                sound.playClick();
+              }}
+              className="btn btn-quiet"
+            >
+              Show {Math.min(PAGE_STEP, visible.length - shown)} more
+              <ArrowDown className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )}
+
       {visible.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 py-16 text-center">
           <p className="text-zinc-400">No projects matched that search.</p>
@@ -214,8 +296,9 @@ export function PortfolioGrid({ onSelectProject }: { onSelectProject: (project: 
               setTone("all");
               setQuery("");
               setReasons({});
+              resetWindow();
             }}
-            className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white"
+            className="mt-4 rounded-xl bg-[var(--brand)] px-4 py-2 text-xs font-semibold text-[var(--brand-contrast)]"
           >
             Reset filters
           </button>

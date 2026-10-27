@@ -76,7 +76,7 @@ export function ProjectModal({ project, onClose }: { project: Project | null; on
             ) : null}
           </div>
           <div className="space-y-4 p-5 sm:p-8 lg:col-span-5">
-            <p className="text-xs tracking-widest text-red-400 uppercase">{sector}</p>
+            <p className="text-xs tracking-widest text-[var(--brand)] uppercase">{sector}</p>
             <h2 className="font-brand text-3xl font-black text-white">{project.title}</h2>
             <p className="text-sm leading-relaxed text-zinc-300">{project.solution}</p>
             <div>

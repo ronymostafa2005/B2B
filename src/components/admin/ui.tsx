@@ -129,7 +129,7 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 const BUTTON_STYLES: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--ad-accent)] text-white hover:brightness-110 border border-transparent shadow-[0_1px_0_rgba(255,255,255,0.14)_inset]",
+    "bg-[var(--ad-accent)] text-[var(--ad-accent-contrast)] hover:brightness-110 border border-transparent shadow-[0_1px_0_rgba(255,255,255,0.14)_inset]",
   secondary:
     "bg-[var(--ad-raised)] text-[var(--ad-ink)] border border-[var(--ad-line)] hover:border-[var(--ad-line-strong)] hover:bg-white/[0.06]",
   ghost:

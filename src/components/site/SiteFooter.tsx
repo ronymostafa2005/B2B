@@ -1,7 +1,5 @@
 "use client";
 
-import { ArrowUp } from "lucide-react";
-import { sound } from "@/lib/sound";
 import { useSiteConfig } from "@/context/SiteConfigContext";
 import { SmartImage } from "@/components/SmartImage";
 
@@ -30,50 +28,37 @@ export function SiteFooter() {
           </div>
           <div className="flex flex-wrap gap-5 text-xs text-zinc-400">
             {links.map((item) => (
-              <a key={item.href} href={item.href} className="hover:text-red-500">
+              <a key={item.href} href={item.href} className="hover:text-[var(--brand)]">
                 {item.label}
               </a>
             ))}
           </div>
-          {footer?.showBackToTop !== false && (
-            <button
-              type="button"
-              aria-label="Back to top"
-              onClick={() => {
-                sound.playClick();
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              className="rounded-full border border-zinc-800 bg-zinc-900 p-3 text-zinc-300 hover:text-white"
-            >
-              <ArrowUp className="h-4 w-4" />
-            </button>
-          )}
         </div>
         <div className="flex flex-col items-start justify-between gap-3 pt-6 text-xs text-zinc-500 sm:flex-row sm:items-center">
           <p>{copyright}</p>
           <div className="flex flex-wrap gap-4">
             {agency.email && (
-              <a href={`mailto:${agency.email}`} className="hover:text-red-400">
+              <a href={`mailto:${agency.email}`} className="hover:text-[var(--brand)]">
                 {agency.email}
               </a>
             )}
             {agency.phone && (
-              <a href={agency.phoneHref || `tel:${agency.phone}`} className="hover:text-red-400">
+              <a href={agency.phoneHref || `tel:${agency.phone}`} className="hover:text-[var(--brand)]">
                 {agency.phone}
               </a>
             )}
             {agency.whatsappHref && (
-              <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+              <a href={agency.whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--brand)]">
                 WhatsApp
               </a>
             )}
             {agency.facebook && (
-              <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+              <a href={agency.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--brand)]">
                 Facebook
               </a>
             )}
             {agency.instagram && (
-              <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-red-400">
+              <a href={agency.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--brand)]">
                 Instagram
               </a>
             )}
